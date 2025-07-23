@@ -3,6 +3,150 @@
  * Central configuration management for the enterprise platform
  */
 
+import { cleanEnv, str, num, bool, url, makeValidator } from 'envalid';
+
+// Custom validator for comma-separated lists
+const csv = makeValidator((input: string) => input.split(','));
+
+// Validate environment variables
+export const env = cleanEnv(process.env, {
+  NODE_ENV: str({ choices: ['development', 'staging', 'production', 'test'] }),
+  PORT: num({ default: 3001 }),
+  API_VERSION: str({ default: 'v1' }),
+  APP_NAME: str(),
+  APP_DESCRIPTION: str(),
+  APP_VERSION: str(),
+
+  CORS_ORIGIN: csv({ default: 'http://localhost:3000' }),
+  INTEGRATION_CORS_ORIGINS: csv({ default: 'http://localhost:3000' }),
+
+  DB_HOST: str(),
+  DB_PORT: num(),
+  DB_NAME: str(),
+  DB_USER: str(),
+  DB_PASSWORD: str(),
+  DB_SSL: bool({ default: false }),
+  DB_POOL_MIN: num({ default: 5 }),
+  DB_POOL_MAX: num({ default: 20 }),
+
+  MONGO_URI: str(),
+  MONGO_DB_NAME: str(),
+
+  REDIS_HOST: str(),
+  REDIS_PORT: num(),
+  REDIS_PASSWORD: str({ default: '' }),
+  REDIS_DB: num({ default: 0 }),
+
+  ELASTICSEARCH_NODE: str(),
+  ELASTICSEARCH_INDEX: str(),
+
+  JWT_SECRET: str(),
+  JWT_EXPIRES_IN: str({ default: '24h' }),
+  JWT_REFRESH_EXPIRES_IN: str({ default: '7d' }),
+  BCRYPT_ROUNDS: num({ default: 12 }),
+  SESSION_SECRET: str(),
+  SESSION_COOKIE_SECURE: bool({ default: false }),
+  SESSION_COOKIE_HTTPONLY: bool({ default: true }),
+  SESSION_COOKIE_MAX_AGE: num({ default: 86400000 }),
+
+  RATE_LIMIT_WINDOW_MS: num({ default: 900000 }),
+  RATE_LIMIT_MAX_REQUESTS: num({ default: 100 }),
+
+  SENDGRID_API_KEY: str({ default: '' }),
+  SENDGRID_FROM_EMAIL: str(),
+  SENDGRID_FROM_NAME: str(),
+
+  TWILIO_ACCOUNT_SID: str({ default: '' }),
+  TWILIO_AUTH_TOKEN: str({ default: '' }),
+  TWILIO_PHONE_NUMBER: str({ default: '' }),
+
+  STRIPE_SECRET_KEY: str({ default: '' }),
+  STRIPE_PUBLISHABLE_KEY: str({ default: '' }),
+  STRIPE_WEBHOOK_SECRET: str({ default: '' }),
+
+  AWS_ACCESS_KEY_ID: str({ default: '' }),
+  AWS_SECRET_ACCESS_KEY: str({ default: '' }),
+  AWS_REGION: str({ default: 'us-east-1' }),
+  AWS_S3_BUCKET: str({ default: 'mallos-enterprise-files' }),
+  AWS_S3_BUCKET_REGION: str({ default: 'us-east-1' }),
+
+  ETHEREUM_NETWORK: str({ default: 'mainnet' }),
+  ETHEREUM_RPC_URL: str({ default: '' }),
+  ETHEREUM_PRIVATE_KEY: str({ default: '' }),
+  SMART_CONTRACT_ADDRESS: str({ default: '' }),
+
+  OPENAI_API_KEY: str({ default: '' }),
+  OPENAI_MODEL: str({ default: 'gpt-4' }),
+
+  AZURE_COMPUTER_VISION_KEY: str({ default: '' }),
+  AZURE_COMPUTER_VISION_ENDPOINT: str({ default: '' }),
+
+  TENSORFLOW_SERVING_URL: str({ default: 'http://localhost:8501' }),
+
+  AZURE_IOT_HUB_CONNECTION_STRING: str({ default: '' }),
+  AZURE_IOT_HUB_HOSTNAME: str({ default: '' }),
+
+  MQTT_BROKER_URL: str({ default: 'mqtt://localhost:1883' }),
+  MQTT_USERNAME: str({ default: 'mallos_iot' }),
+  MQTT_PASSWORD: str({ default: 'mallos_iot_password' }),
+
+  SENTRY_DSN: str({ default: '' }),
+  SENTRY_ENVIRONMENT: str({ default: 'development' }),
+  NEW_RELIC_LICENSE_KEY: str({ default: '' }),
+  NEW_RELIC_APP_NAME: str({ default: 'MallOS Enterprise' }),
+  PROMETHEUS_PORT: num({ default: 9090 }),
+
+  SAP_CLIENT_ID: str({ default: '' }),
+  SAP_CLIENT_SECRET: str({ default: '' }),
+  SAP_BASE_URL: str({ default: '' }),
+
+  SALESFORCE_CLIENT_ID: str({ default: '' }),
+  SALESFORCE_CLIENT_SECRET: str({ default: '' }),
+  SALESFORCE_LOGIN_URL: str({ default: 'https://login.salesforce.com' }),
+
+  DOCUSIGN_ACCOUNT_ID: str({ default: '' }),
+  DOCUSIGN_INTEGRATION_KEY: str({ default: '' }),
+  DOCUSIGN_USER_ID: str({ default: '' }),
+  DOCUSIGN_PRIVATE_KEY_PATH: str({ default: './certs/docusign-private-key.pem' }),
+
+  RABBITMQ_URL: str({ default: 'amqp://localhost:5672' }),
+  RABBITMQ_USERNAME: str({ default: 'guest' }),
+  RABBITMQ_PASSWORD: str({ default: 'guest' }),
+
+  KAFKA_BROKERS: str({ default: 'localhost:9092' }),
+  KAFKA_CLIENT_ID: str({ default: 'mallos-enterprise' }),
+  KAFKA_GROUP_ID: str({ default: 'mallos-consumer-group' }),
+
+  WEBSOCKET_PORT: num({ default: 3002 }),
+  SOCKET_IO_CORS_ORIGIN: str({ default: 'http://localhost:3000' }),
+
+  DEFAULT_TENANT_ID: str({ default: 'default' }),
+  TENANT_HEADER_NAME: str({ default: 'X-Tenant-ID' }),
+  TENANT_SUBDOMAIN_ENABLED: bool({ default: true }),
+
+  DEFAULT_LOCALE: str({ default: 'en' }),
+  SUPPORTED_LOCALES: csv({ default: 'en,ar' }),
+  RTL_LOCALES: csv({ default: 'ar' }),
+
+  ENABLE_AI_ANALYTICS: bool({ default: true }),
+  ENABLE_IOT_INTEGRATION: bool({ default: true }),
+  ENABLE_BLOCKCHAIN: bool({ default: true }),
+  ENABLE_COMPUTER_VISION: bool({ default: true }),
+  ENABLE_PREDICTIVE_MAINTENANCE: bool({ default: true }),
+  ENABLE_FACIAL_RECOGNITION: bool({ default: true }),
+  ENABLE_VOICE_ASSISTANT: bool({ default: true }),
+  ENABLE_AR_VR: bool({ default: true }),
+
+  LOG_LEVEL: str({ default: 'debug' }),
+  ENABLE_SWAGGER: bool({ default: true }),
+  ENABLE_GRAPHQL_PLAYGROUND: bool({ default: true }),
+  ENABLE_METRICS: bool({ default: true }),
+  ENABLE_HEALTH_CHECK: bool({ default: true }),
+
+  TEST_DB_NAME: str({ default: 'mallos_enterprise_test' }),
+  TEST_MONGO_URI: str({ default: 'mongodb://localhost:27017/mallos_enterprise_test' }),
+});
+
 export interface Config {
   // Application
   app: {

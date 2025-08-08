@@ -180,6 +180,8 @@ POST /api/auth/logout
 POST /api/auth/refresh
 ```
 
+**Cookie Policy:** The `sessionId` cookie is issued with `SameSite=Lax` to mitigate CSRF while ensuring standard navigation continues to send credentials.
+
 #### المستأجرين
 ```http
 GET /api/tenants

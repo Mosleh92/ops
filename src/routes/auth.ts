@@ -60,7 +60,11 @@ router.post('/login', async (req, res) => {
     const accessToken = AuthService.generateAccessToken(user);
     const refreshToken = AuthService.generateRefreshToken(user);
     const sessionId = await AuthService.createSession(user.id, { role: user.role, tenantId: user.tenantId });
-    res.cookie('sessionId', sessionId, { httpOnly: true, secure: true });
+    res.cookie('sessionId', sessionId, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax'
+    });
     return res.json({ accessToken, refreshToken, sessionId });
   } catch (err) {
     logger.error('Login error', err);

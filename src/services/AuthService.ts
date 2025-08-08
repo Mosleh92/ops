@@ -9,7 +9,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { redis } from '@/config/redis';
 import { config } from '@/config/config';
 import { User, UserRole, UserStatus } from '@/models/User';
+import { database } from '@/config/database';
 import { logger } from '@/utils/logger';
+import crypto from 'crypto';
 
 export class AuthService {
   /**
@@ -48,6 +50,20 @@ export class AuthService {
   }
 
   /**
+   * Retrieve user by ID
+   */
+  static async getUserById(id: string): Promise<User | null> {
+    try {
+      const userRepo = database.getRepository(User);
+      const user = await userRepo.findOne({ where: { id } });
+      return user ?? null;
+    } catch (error) {
+      logger.error('Failed to retrieve user by ID:', error);
+      return null;
+    }
+  }
+
+  /**
    * Hash password
    */
   static async hashPassword(password: string): Promise<string> {
@@ -65,7 +81,7 @@ export class AuthService {
    * Generate MFA code and store in Redis
    */
   static async generateMfaCode(userId: string): Promise<string> {
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const code = crypto.randomInt(100000, 1000000).toString();
     await redis.set(`mfa:${userId}`, code, 'EX', 300); // 5 min expiry
     return code;
   }

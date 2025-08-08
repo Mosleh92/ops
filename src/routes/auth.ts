@@ -6,6 +6,7 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import { AuthService } from '@/services/AuthService';
+import { EmailService } from '@/services/EmailService';
 import { User, UserStatus, UserRole } from '@/models/User';
 import { database } from '@/config/database';
 import { logger } from '@/utils/logger';
@@ -92,6 +93,26 @@ router.post(
       logger.error('Login error', err);
       return res.status(500).json({ message: 'Login failed' });
     }
+ codex/add-validation-middleware-for-auth-routes
+
+    if (user.status !== UserStatus.ACTIVE) {
+      return res.status(403).json({ message: 'Account not active' });
+    }
+    // MFA step (optional)
+    // ...
+    const accessToken = AuthService.generateAccessToken(user);
+    const refreshToken = AuthService.generateRefreshToken(user);
+    const sessionId = await AuthService.createSession(user.id, { role: user.role, tenantId: user.tenantId });
+    res.cookie('sessionId', sessionId, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax'
+    });
+    return res.json({ accessToken, refreshToken, sessionId });
+  } catch (err) {
+    logger.error('Login error', err);
+    return res.status(500).json({ message: 'Login failed' });
+ main
   }
 );
 
@@ -105,9 +126,13 @@ router.post('/password-reset/request', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
     const token = await AuthService.initiatePasswordReset(user.id);
-    // TODO: Send token via email
+    await EmailService.sendMail({
+      to: user.email,
+      subject: 'Password Reset Request',
+      text: `Use this token to reset your password: ${token}`,
+    });
     logger.info(`Password reset requested for ${email}`);
-    return res.json({ message: 'Password reset email sent', token });
+    return res.json({ message: 'Password reset email sent' });
   } catch (err) {
     logger.error('Password reset request error', err);
     return res.status(500).json({ message: 'Password reset request failed' });

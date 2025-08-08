@@ -15,6 +15,7 @@ import { logger } from '@/utils/logger';
 import compression from 'compression';
 import cors from 'cors';
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { createServer } from 'http';
 import morgan from 'morgan';
@@ -158,6 +159,9 @@ class MallOSApplication {
     // Body parsing
     this.app.use(express.json({ limit: '10mb' }));
     this.app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+    // Cookie parsing
+    this.app.use(cookieParser());
 
     // Audit logging (global)
     this.app.use(auditLog);

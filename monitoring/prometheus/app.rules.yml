@@ -1,0 +1,7 @@
+groups:
+  - name: app_metrics
+    rules:
+      - record: job:http_request_duration_seconds:avg5m
+        expr: avg(rate(http_request_duration_seconds_sum[5m])) by (job)
+      - record: job:http_request_total:rate1m
+        expr: sum(rate(http_requests_total[1m])) by (job)

@@ -4,8 +4,6 @@
 
 FROM node:18-alpine AS builder
 
-ENV OPENCV4NODEJS_DISABLE_AUTOBUILD=1
-
 WORKDIR /app
 
 RUN apk add --no-cache \
@@ -35,8 +33,6 @@ RUN npm run build
 
 
 FROM node:18-alpine AS production
-
-ENV OPENCV4NODEJS_DISABLE_AUTOBUILD=1
 
 WORKDIR /app
 

@@ -1,4 +1,6 @@
-# Render deployment configuration for MallOS Enterprise
+# ================================
+# Render Deployment Config: mallos
+# ================================
 
 databases:
   - name: mallos-db
@@ -8,10 +10,10 @@ databases:
 services:
   - type: web
     name: mallos-backend
-    env: node
+    env: docker
     region: oregon
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+    plan: free
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: NODE_ENV
         value: production

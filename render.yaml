@@ -1,0 +1,38 @@
+# Render deployment configuration for MallOS Enterprise
+# Defines backend Node service, frontend static site, and Postgres database
+
+databases:
+  - name: mallos-db
+    plan: free
+    region: oregon
+
+services:
+  - type: web
+    name: mallos-backend
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - fromDatabase:
+          name: mallos-db
+          property: connectionString
+        key: DATABASE_URL
+      # Uncomment and set values for additional services
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+
+  - type: web
+    name: mallos-frontend
+    env: static
+    region: oregon
+    plan: free
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist

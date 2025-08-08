@@ -38,6 +38,7 @@ import tasksRoutes from '@/routes/tasks';
 import tenantsRoutes from '@/routes/tenants';
 import usersRoutes from '@/routes/users';
 import workPermitsRoutes from '@/routes/work-permits';
+import { loadPlugins } from '@/plugins';
 
 // Import middleware
 import { authMiddleware } from '@/middleware/auth';
@@ -94,6 +95,9 @@ class MallOSApplication {
 
       // Setup routes
       this.setupRoutes();
+
+      // Load external plugins
+      await loadPlugins(this.app, this.io);
 
       // Setup Socket.IO
       this.setupSocketIO();

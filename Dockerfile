@@ -26,7 +26,7 @@ RUN apk add --no-cache \
 
 COPY package*.json ./
 COPY tsconfig.json ./
-COPY .env.example ./
+COPY env.example ./
 
 RUN npm install --legacy-peer-deps
 
@@ -47,8 +47,7 @@ COPY package*.json ./
 RUN npm install --legacy-peer-deps && npm cache clean --force
 
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
-COPY --chown=nodejs:nodejs .env.example ./
-COPY --chown=nodejs:nodejs ./uploads ./uploads
+COPY --chown=nodejs:nodejs env.example ./
 
 RUN mkdir -p /app/logs /app/temp /app/uploads && \
     chown -R nodejs:nodejs /app

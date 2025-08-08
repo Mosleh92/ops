@@ -40,6 +40,7 @@ ENV OPENCV4NODEJS_DISABLE_AUTOBUILD=1
 
 WORKDIR /app
 
+RUN apk add --no-cache curl
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001
 

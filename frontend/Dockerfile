@@ -6,9 +6,9 @@
 FROM node:18-alpine AS builder
 WORKDIR /app
 
-# Install dependencies
+# Install dependencies (legacy peer deps to avoid conflicts)
 COPY package*.json ./
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Copy source code
 COPY . .
@@ -38,8 +38,9 @@ CMD ["nginx", "-g", "daemon off;"]
 FROM node:18-alpine AS development
 WORKDIR /app
 
+# Install dependencies for development (legacy peer deps)
 COPY package*.json ./
-RUN npm install
+RUN npm install --legacy-peer-deps
 COPY . .
 EXPOSE 3000
 CMD ["npm", "run", "dev"] 

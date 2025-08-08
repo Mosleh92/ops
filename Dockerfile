@@ -96,7 +96,8 @@ COPY package*.json ./
 COPY tsconfig.json ./
 
 # Install all dependencies (including dev dependencies)
-RUN npm install
+# Bypass peer dependency conflicts
+RUN npm install --legacy-peer-deps
 
 # Copy source code
 COPY . .

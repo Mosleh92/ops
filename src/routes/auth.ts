@@ -4,6 +4,7 @@
  */
 
 import express from 'express';
+import { body, validationResult } from 'express-validator';
 import { AuthService } from '@/services/AuthService';
 import { EmailService } from '@/services/EmailService';
 import { User, UserStatus, UserRole } from '@/models/User';
@@ -13,45 +14,87 @@ import { logger } from '@/utils/logger';
 const router = express.Router();
 
 // User registration
-router.post('/register', async (req, res) => {
-  try {
-    const { firstName, lastName, email, username, password, tenantId, role } = req.body;
-    const userRepo = database.getRepository(User);
-    const existing = await userRepo.findOne({ where: [{ email }, { username }] });
-    if (existing) {
-      return res.status(409).json({ message: 'User already exists' });
+router.post(
+  '/register',
+  [
+    body('firstName').notEmpty().withMessage('First name is required'),
+    body('lastName').notEmpty().withMessage('Last name is required'),
+    body('email').isEmail().withMessage('Valid email is required'),
+    body('username').notEmpty().withMessage('Username is required'),
+    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+    body('tenantId').notEmpty().withMessage('Tenant ID is required'),
+    body('role').optional().isIn(Object.values(UserRole)).withMessage('Invalid role')
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      const { firstName, lastName, email, username, password, tenantId, role } = req.body;
+      const userRepo = database.getRepository(User);
+      const existing = await userRepo.findOne({ where: [{ email }, { username }] });
+      if (existing) {
+        return res.status(409).json({ message: 'User already exists' });
+      }
+      const user = userRepo.create({
+        firstName,
+        lastName,
+        email,
+        username,
+        password: await AuthService.hashPassword(password),
+        tenantId,
+        role: role || UserRole.TENANT_USER,
+        status: UserStatus.PENDING_VERIFICATION
+      });
+      await userRepo.save(user);
+      logger.info(`User registered: ${user.email}`);
+      return res.status(201).json({ message: 'Registration successful', userId: user.id });
+    } catch (err) {
+      logger.error('Registration error', err);
+      return res.status(500).json({ message: 'Registration failed' });
     }
-    const user = userRepo.create({
-      firstName,
-      lastName,
-      email,
-      username,
-      password: await AuthService.hashPassword(password),
-      tenantId,
-      role: role || UserRole.TENANT_USER,
-      status: UserStatus.PENDING_VERIFICATION
-    });
-    await userRepo.save(user);
-    logger.info(`User registered: ${user.email}`);
-    return res.status(201).json({ message: 'Registration successful', userId: user.id });
-  } catch (err) {
-    logger.error('Registration error', err);
-    return res.status(500).json({ message: 'Registration failed' });
   }
-});
+);
 
 // User login
-router.post('/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const userRepo = database.getRepository(User);
-    const user = await userRepo.findOne({ where: { email }, select: ['id', 'email', 'password', 'role', 'tenantId', 'status'] });
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+router.post(
+  '/login',
+  [
+    body('email').isEmail().withMessage('Valid email is required'),
+    body('password').notEmpty().withMessage('Password is required')
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      const { email, password } = req.body;
+      const userRepo = database.getRepository(User);
+      const user = await userRepo.findOne({ where: { email }, select: ['id', 'email', 'password', 'role', 'tenantId', 'status'] });
+      if (!user) {
+        return res.status(401).json({ message: 'Invalid credentials' });
+      }
+      if (!(await AuthService.comparePassword(password, user.password))) {
+        return res.status(401).json({ message: 'Invalid credentials' });
+      }
+      if (user.status !== UserStatus.ACTIVE) {
+        return res.status(403).json({ message: 'Account not active' });
+      }
+      // MFA step (optional)
+      // ...
+      const accessToken = AuthService.generateAccessToken(user);
+      const refreshToken = AuthService.generateRefreshToken(user);
+      const sessionId = await AuthService.createSession(user.id, { role: user.role, tenantId: user.tenantId });
+      res.cookie('sessionId', sessionId, { httpOnly: true, secure: true });
+      return res.json({ accessToken, refreshToken, sessionId });
+    } catch (err) {
+      logger.error('Login error', err);
+      return res.status(500).json({ message: 'Login failed' });
     }
-    if (!(await AuthService.comparePassword(password, user.password))) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
+ codex/add-validation-middleware-for-auth-routes
+
     if (user.status !== UserStatus.ACTIVE) {
       return res.status(403).json({ message: 'Account not active' });
     }
@@ -69,8 +112,9 @@ router.post('/login', async (req, res) => {
   } catch (err) {
     logger.error('Login error', err);
     return res.status(500).json({ message: 'Login failed' });
+ main
   }
-});
+);
 
 // Password reset request
 router.post('/password-reset/request', async (req, res) => {

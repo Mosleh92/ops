@@ -311,4 +311,14 @@ CORS_ORIGIN=https://your-domain.com
 
 ---
 
-**MallOS Enterprise** - نظام إدارة المراكز التجارية المتقدم 🏢✨ 
+## Render Deployment
+
+A sample Render configuration is available in `render.yaml` to help deploy the platform:
+
+- **mallos-backend**: Node service that builds and runs the API (`npm install && npm run build` then `npm start`).
+- **mallos-frontend**: Static site built from the `frontend` directory.
+- **mallos-db**: Managed PostgreSQL database.
+
+Connect your repository in Render and it will detect this file to provision the services. Configure secrets like `JWT_SECRET` and `REDIS_URL` in the Render dashboard.
+
+**MallOS Enterprise** - نظام إدارة المراكز التجارية المتقدم 🏢✨

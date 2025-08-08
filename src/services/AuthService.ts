@@ -10,6 +10,7 @@ import { redis } from '@/config/redis';
 import { config } from '@/config/config';
 import { User, UserRole, UserStatus } from '@/models/User';
 import { logger } from '@/utils/logger';
+import crypto from 'crypto';
 
 export class AuthService {
   /**
@@ -65,7 +66,7 @@ export class AuthService {
    * Generate MFA code and store in Redis
    */
   static async generateMfaCode(userId: string): Promise<string> {
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const code = crypto.randomInt(100000, 1000000).toString();
     await redis.set(`mfa:${userId}`, code, 'EX', 300); // 5 min expiry
     return code;
   }

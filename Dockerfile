@@ -16,8 +16,16 @@ RUN apk add --no-cache \
     python3 \
     make \
     g++ \
+    cmake \
     git \
     curl \
+    build-base \
+    pkgconfig \
+    libjpeg-turbo-dev \
+    zlib-dev \
+    libpng-dev \
+    libwebp-dev \
+    tiff-dev \
     && rm -rf /var/cache/apk/*
 
 # Copy package files
@@ -86,9 +94,17 @@ RUN apk add --no-cache \
     python3 \
     make \
     g++ \
+    cmake \
     git \
     curl \
     vim \
+    build-base \
+    pkgconfig \
+    libjpeg-turbo-dev \
+    zlib-dev \
+    libpng-dev \
+    libwebp-dev \
+    tiff-dev \
     && rm -rf /var/cache/apk/*
 
 # Copy package files

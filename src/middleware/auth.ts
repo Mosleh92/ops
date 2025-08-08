@@ -40,7 +40,7 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
 }
 
 // Token refresh endpoint (for web clients)
-export function tokenRefreshEndpoint(req: Request, res: Response) {
+export async function tokenRefreshEndpoint(req: Request, res: Response) {
   const refreshToken = req.cookies?.refreshToken || req.body.refreshToken;
   if (!refreshToken) {
     return res.status(401).json({ success: false, error: 'Missing refresh token' });
@@ -50,14 +50,15 @@ export function tokenRefreshEndpoint(req: Request, res: Response) {
     if (payload.type !== 'refresh') {
       return res.status(400).json({ success: false, error: 'Invalid refresh token type' });
     }
-    // Fetch user and issue new access token
-    // (Assume getUserById is available on AuthService)
-    AuthService.getUserById(payload.sub).then(user => {
-      if (!user) return res.status(404).json({ success: false, error: 'User not found' });
-      const accessToken = AuthService.generateAccessToken(user);
-      res.cookie('accessToken', accessToken, { httpOnly: true, secure: true, sameSite: 'lax' });
-      res.json({ success: true, accessToken });
-    });
+
+    const user = await AuthService.getUserById(payload.sub);
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'User not found' });
+    }
+
+    const accessToken = AuthService.generateAccessToken(user);
+    res.cookie('accessToken', accessToken, { httpOnly: true, secure: true, sameSite: 'lax' });
+    res.json({ success: true, accessToken });
   } catch (err) {
     return res.status(401).json({ success: false, error: 'Invalid or expired refresh token' });
   }

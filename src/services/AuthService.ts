@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { redis } from '@/config/redis';
 import { config } from '@/config/config';
 import { User, UserRole, UserStatus } from '@/models/User';
+import { database } from '@/config/database';
 import { logger } from '@/utils/logger';
 
 export class AuthService {
@@ -45,6 +46,20 @@ export class AuthService {
    */
   static verifyToken(token: string): any {
     return jwt.verify(token, config.auth.jwtSecret);
+  }
+
+  /**
+   * Retrieve user by ID
+   */
+  static async getUserById(id: string): Promise<User | null> {
+    try {
+      const userRepo = database.getRepository(User);
+      const user = await userRepo.findOne({ where: { id } });
+      return user ?? null;
+    } catch (error) {
+      logger.error('Failed to retrieve user by ID:', error);
+      return null;
+    }
   }
 
   /**

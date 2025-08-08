@@ -21,7 +21,7 @@
 - [x] `.dockerignore` - Docker ignore rules
 - [x] `.eslintrc.js` - Code linting configuration
 - [x] `.prettierrc` - Code formatting rules
-- [x] `jest.config.js` - Testing configuration
+- [x] `tests/` - Node's built-in test configuration
 
 ### 🎨 User Interface ✅
 - [x] **Login Pages** - Role-specific HTML login pages

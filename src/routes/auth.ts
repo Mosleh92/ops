@@ -5,6 +5,7 @@
 
 import express from 'express';
 import { AuthService } from '@/services/AuthService';
+import { EmailService } from '@/services/EmailService';
 import { User, UserStatus, UserRole } from '@/models/User';
 import { database } from '@/config/database';
 import { logger } from '@/utils/logger';
@@ -77,9 +78,13 @@ router.post('/password-reset/request', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
     const token = await AuthService.initiatePasswordReset(user.id);
-    // TODO: Send token via email
+    await EmailService.sendMail({
+      to: user.email,
+      subject: 'Password Reset Request',
+      text: `Use this token to reset your password: ${token}`,
+    });
     logger.info(`Password reset requested for ${email}`);
-    return res.json({ message: 'Password reset email sent', token });
+    return res.json({ message: 'Password reset email sent' });
   } catch (err) {
     logger.error('Password reset request error', err);
     return res.status(500).json({ message: 'Password reset request failed' });

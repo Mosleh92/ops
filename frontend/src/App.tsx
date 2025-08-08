@@ -1,17 +1,25 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
-import { useAuth } from '@/hooks/useAuth'
-import { AuthProvider } from '@/contexts/AuthContext'
-import Login from '@/pages/Login'
-import Register from '@/pages/Register'
-import Dashboard from '@/pages/Dashboard'
-import Tenants from '@/pages/Tenants'
-import Users from '@/pages/Users'
-import Malls from '@/pages/Malls'
-import IoTDashboard from '@/pages/IoTDashboard'
-import AIAnalyticsDashboard from '@/pages/AIAnalyticsDashboard'
-import ComputerVisionDashboard from '@/pages/ComputerVisionDashboard'
 import Layout from '@/components/Layout'
 import LoadingSpinner from '@/components/LoadingSpinner'
+import { AuthProvider } from '@/contexts/AuthContext'
+import { useAuth } from '@/hooks/useAuth'
+import AIAnalyticsDashboard from '@/pages/AIAnalyticsDashboard'
+import ComputerVisionDashboard from '@/pages/ComputerVisionDashboard'
+import Dashboard from '@/pages/Dashboard'
+import IoTDashboard from '@/pages/IoTDashboard'
+import Login from '@/pages/Login'
+import Malls from '@/pages/Malls'
+import OPSDashboard from '@/pages/OPSDashboard'
+import Register from '@/pages/Register'
+import SuperAdminDashboard from '@/pages/SuperAdminDashboard'
+import TenantDetails from '@/pages/TenantDetails'
+import TenantRegistration from '@/pages/TenantRegistration'
+import Tenants from '@/pages/Tenants'
+import TenantStats from '@/pages/TenantStats'
+import Users from '@/pages/Users'
+import { QueryClient, QueryClientProvider } from 'react-query'
+import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom'
+
+const queryClient = new QueryClient()
 
 function AppRoutes() {
   const { user, loading } = useAuth()
@@ -34,7 +42,12 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<Dashboard />} />
+        <Route path="super-admin" element={<SuperAdminDashboard />} />
+        <Route path="ops" element={<OPSDashboard />} />
         <Route path="tenants" element={<Tenants />} />
+        <Route path="tenants/register" element={<TenantRegistration />} />
+        <Route path="tenants/:id" element={<TenantDetails />} />
+        <Route path="tenants/stats" element={<TenantStats />} />
         <Route path="users" element={<Users />} />
         <Route path="malls" element={<Malls />} />
         <Route path="iot" element={<IoTDashboard />} />
@@ -48,10 +61,14 @@ function AppRoutes() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppRoutes />
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <Router>
+          <AppRoutes />
+        </Router>
+      </AuthProvider>
+    </QueryClientProvider>
   )
 }
 
-export default App 
+export default App

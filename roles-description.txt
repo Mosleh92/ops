@@ -1,0 +1,100 @@
+# Roles Description – SaaS Multi-Tenant MallOS System (Simplified)
+
+## Core Roles
+
+### 1. Super Admin  
+• Full system ownership – root access to every tenant, setting, and audit log  
+• Provisions new tenants (shops) and assigns unique Tenant-ID  
+• Creates first user account for each tenant (Tenant Admin)  
+• Defines global security policies and system-wide feature flags  
+• Manages system integrations (payment, SMS, email)  
+• Performs tenant suspension/activation and data management  
+
+### 2. Mall Operations Manager  
+• **Primary operational control** - the heart of mall management  
+• Mall-wide dashboards: occupancy, utilities, maintenance, delivery schedules  
+• Reviews and approves all General Work Permits (GWP) from tenants  
+• Assigns inspection tasks to Security Guards and tracks completion  
+• Publishes mall-level announcements visible to all tenants  
+• Manages mall emergency procedures and incident escalation  
+• Coordinates with external contractors and service providers  
+• Oversees common area maintenance and utility distribution  
+• Handles tenant complaints and operational disputes  
+• Generates operational reports and compliance documentation  
+
+### 3. Security Guard (Inspector)  
+• Mobile inspection app with offline capability  
+• QR code scanning for instant tenant profile loading  
+• Digital checklists: fire safety, cleanliness, signage compliance  
+• Geo-tagged photo capture and violation documentation  
+• Issues violation tickets with auto-timer for rectification  
+• Reports directly to Mall Operations Manager  
+
+### 4. Tenant Roles
+
+#### 4.1 Tenant Admin  
+• Shop profile management and staff invitation  
+• Submits GWP requests and renovation applications  
+• Manages shop operating hours and emergency contacts  
+• Handles invoice payments and compliance certificates  
+• Primary contact point with Mall Operations  
+
+#### 4.3 Shop Staff  
+• Read-only access to announcements and assigned tasks  
+
+#### 4.4 Maintenance Vendor (Temporary)  
+• Time-limited access tied to specific GWP  
+• Photo upload and completion documentation  
+• Direct reporting to Mall Operations Manager  
+
+## System Architecture
+
+### Login & Authentication  
+• Universal SSO login page  
+• JWT with `tenant_id` and `role` payload  
+• Route mapping:
+  - `/super-admin/*` → SUPER_ADMIN  
+  - `/mall-ops/*` → MALL_OPERATIONS  
+  - `/security/*` → SECURITY_GUARD  
+  - `/tenant/{tenant_id}/*` → TENANT_*  
+
+### Mall Operations Dashboard Features  
+• **Real-time mall status**: occupancy levels, active permits, pending inspections  
+• **Tenant management**: lease status, compliance scores, payment tracking  
+• **Maintenance coordination**: work order tracking, contractor scheduling  
+• **Emergency management**: incident logging, evacuation protocols  
+• **Communication hub**: announcement publishing, tenant messaging  
+• **Analytics**: foot traffic, revenue trends, operational KPIs  
+
+### Data Security  
+• Complete tenant data isolation using `tenant_id` filtering  
+• Mall Operations has read access across tenants for operational needs  
+• Audit logging for all cross-tenant administrative actions  
+• Role-based permission enforcement at API level  
+
+### Mobile App (Security Guards)  
+• Offline-first with background sync  
+• QR code scanner for rapid shop identification  
+• Digital forms with photo capture  
+• GPS verification for patrol routes  
+• Push notifications from Mall Operations  
+
+### Key Workflows  
+
+#### GWP (General Work Permit) Process:  
+1. Tenant Admin submits permit request  
+2. Mall Operations reviews and approves/rejects  
+3. If approved, temporary vendor access is created  
+4. Security Guard monitors work progress  
+5. Vendor uploads completion documentation  
+6. Mall Operations closes permit  
+
+#### Inspection Workflow:  
+1. Mall Operations schedules routine inspections  
+2. Security Guard receives mobile notification  
+3. QR scan loads tenant profile and checklist  
+4. Violations documented with photos  
+5. Automatic notification to tenant and Mall Operations  
+6. Follow-up inspections tracked until resolution  
+
+This streamlined system focuses on **Mall Operations as the central command center** while maintaining essential tenant isolation and security protocols.

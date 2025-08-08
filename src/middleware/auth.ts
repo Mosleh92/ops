@@ -3,11 +3,9 @@
  * Route protection, RBAC, session, and MFA enforcement
  */
 
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { config } from '@/config/config';
-import { AuthService } from '@/services/AuthService';
 import { UserRole } from '@/models/User';
+import { AuthService } from '@/services/AuthService';
+import { NextFunction, Request, Response } from 'express';
 
 // Enhanced Auth middleware for integrations
 export function authenticate(req: Request, res: Response, next: NextFunction) {
@@ -95,4 +93,4 @@ export async function requireMfa(req: Request, res: Response, next: NextFunction
     return res.status(401).json({ message: 'MFA required' });
   }
   next();
-} 
+}

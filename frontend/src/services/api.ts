@@ -102,6 +102,34 @@ export const usersApi = {
   },
 }
 
+// Malls API
+export const mallsApi = {
+  getMalls: async (params?: any) => {
+    const response = await api.get('/malls', { params })
+    return response.data
+  },
+
+  getMall: async (id: string) => {
+    const response = await api.get(`/malls/${id}`)
+    return response.data
+  },
+
+  createMall: async (mallData: any) => {
+    const response = await api.post('/malls', mallData)
+    return response.data
+  },
+
+  updateMall: async (id: string, mallData: any) => {
+    const response = await api.put(`/malls/${id}`, mallData)
+    return response.data
+  },
+
+  deleteMall: async (id: string) => {
+    const response = await api.delete(`/malls/${id}`)
+    return response.data
+  }
+}
+
 // Tenants API
 export const tenantsApi = {
   getTenants: async (params?: any) => {
@@ -204,6 +232,58 @@ export const dashboardApi = {
     const response = await api.get('/dashboard/health')
     return response.data
   },
+
+  // Super Admin Dashboard APIs
+  getSystemStats: async (timeRange: string) => {
+    const response = await api.get(`/dashboard/system-stats/${timeRange}`)
+    return response.data
+  },
+
+  getSecurityMetrics: async (timeRange: string) => {
+    const response = await api.get(`/dashboard/security-metrics/${timeRange}`)
+    return response.data
+  },
+
+  getPerformanceMetrics: async (timeRange: string) => {
+    const response = await api.get(`/dashboard/performance-metrics/${timeRange}`)
+    return response.data
+  },
+
+  getSystemHealth: async () => {
+    const response = await api.get('/dashboard/system-health')
+    return response.data
+  },
+
+  getRecentActivities: async (timeRange: string) => {
+    const response = await api.get(`/dashboard/recent-activities/${timeRange}`)
+    return response.data
+  },
+
+  // OPS Dashboard APIs
+  getOPSStats: async (mallId: string, timeRange: string) => {
+    const response = await api.get(`/dashboard/ops-stats/${mallId}/${timeRange}`)
+    return response.data
+  },
+
+  getOPSTasks: async (mallId: string, showCompleted: boolean) => {
+    const response = await api.get(`/dashboard/ops-tasks/${mallId}/${showCompleted}`)
+    return response.data
+  },
+
+  getOPSIncidents: async (mallId: string) => {
+    const response = await api.get(`/dashboard/ops-incidents/${mallId}`)
+    return response.data
+  },
+
+  getOPSWorkPermits: async (mallId: string) => {
+    const response = await api.get(`/dashboard/ops-work-permits/${mallId}`)
+    return response.data
+  },
+
+  getOPSNotifications: async (mallId: string) => {
+    const response = await api.get(`/dashboard/ops-notifications/${mallId}`)
+    return response.data
+  }
 }
 
 // Files API
@@ -218,7 +298,7 @@ export const filesApi = {
         formData.append(key, metadata[key])
       })
     }
-    
+
     const response = await api.post('/files/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -255,4 +335,4 @@ export const filesApi = {
   },
 }
 
-export default api 
+export default api

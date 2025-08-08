@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MallOS - اختبار نظام الحارس</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        .test-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .test-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="test-gradient min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full mb-4 shadow-lg">
+                <i class="fas fa-shield-alt text-3xl text-blue-600"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-white mb-2">MallOS Security</h1>
+            <p class="text-white opacity-90">اختبار نظام الحارس</p>
+        </div>
+
+        <div class="test-card rounded-2xl p-8 shadow-2xl">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-white mb-2">بيانات الاختبار</h2>
+                <p class="text-white opacity-75">استخدم هذه البيانات للاختبار</p>
+            </div>
+
+            <div class="space-y-4 text-white">
+                <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                    <h3 class="font-bold mb-2">حارس الأمن:</h3>
+                    <p><strong>رقم الحارس:</strong> G001</p>
+                    <p><strong>PIN:</strong> 1234</p>
+                </div>
+
+                <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                    <h3 class="font-bold mb-2">مدير العمليات:</h3>
+                    <p><strong>البريد الإلكتروني:</strong> operations@mallos.com</p>
+                    <p><strong>كلمة المرور:</strong> password123</p>
+                </div>
+
+                <div class="bg-white bg-opacity-20 rounded-lg p-4">
+                    <h3 class="font-bold mb-2">المدير العام:</h3>
+                    <p><strong>اسم المستخدم:</strong> admin</p>
+                    <p><strong>كلمة المرور:</strong> admin123</p>
+                    <p><strong>رمز المصادقة:</strong> 123456</p>
+                </div>
+            </div>
+
+            <div class="mt-6 pt-6 border-t border-white border-opacity-20">
+                <div class="grid grid-cols-1 gap-3">
+                    <a href="login-guard.html" class="flex items-center justify-center px-4 py-3 bg-white bg-opacity-20 rounded-lg text-white hover:bg-opacity-30 transition-all duration-300">
+                        <i class="fas fa-shield-alt ml-2"></i>
+                        اختبار حارس الأمن
+                    </a>
+                    <a href="login-operations.html" class="flex items-center justify-center px-4 py-3 bg-white bg-opacity-20 rounded-lg text-white hover:bg-opacity-30 transition-all duration-300">
+                        <i class="fas fa-building ml-2"></i>
+                        اختبار مدير العمليات
+                    </a>
+                    <a href="login-superadmin.html" class="flex items-center justify-center px-4 py-3 bg-white bg-opacity-20 rounded-lg text-white hover:bg-opacity-30 transition-all duration-300">
+                        <i class="fas fa-user-shield ml-2"></i>
+                        اختبار المدير العام
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-8">
+            <p class="text-white opacity-75 text-sm">
+                © 2024 MallOS Enterprise. جميع الحقوق محفوظة
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Auto-redirect to guard login after 5 seconds
+        setTimeout(() => {
+            if (confirm('هل تريد الانتقال إلى صفحة حارس الأمن؟')) {
+                window.location.href = 'login-guard.html';
+            }
+        }, 5000);
+
+        // Add some interactive effects
+        const cards = document.querySelectorAll('.bg-white.bg-opacity-20');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'scale(1.02)';
+                card.style.transition = 'transform 0.2s ease';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body>
+</html> 

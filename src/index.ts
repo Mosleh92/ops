@@ -3,43 +3,44 @@
  * IoT & AI Integration Hub for Mall Management System
  */
 
-import express from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import compression from 'compression';
-import morgan from 'morgan';
-import { createServer } from 'http';
-import { Server } from 'socket.io';
 import { config } from '@/config/config';
-import { logger } from '@/utils/logger';
 import { databaseManager } from '@/config/database';
 import { redis } from '@/config/redis';
-import { iotService } from '@/services/IoTService';
-import { aiAnalyticsService } from '@/services/AIAnalyticsService';
-import { computerVisionService } from '@/services/ComputerVisionService';
-import os from 'os';
-import { getRepository } from 'typeorm';
 import { AuditLog } from '@/models/AuditLog';
 import { IntegrationConfig } from '@/models/IntegrationConfig';
+import { aiAnalyticsService } from '@/services/AIAnalyticsService';
+import { computerVisionService } from '@/services/ComputerVisionService';
+import { iotService } from '@/services/IoTService';
+import { logger } from '@/utils/logger';
+import compression from 'compression';
+import cors from 'cors';
+import express from 'express';
+import helmet from 'helmet';
+import { createServer } from 'http';
+import morgan from 'morgan';
+import os from 'os';
 import promClient from 'prom-client';
+import { Server } from 'socket.io';
+import { getRepository } from 'typeorm';
 
 // Import routes
-import authRoutes from '@/routes/auth';
-import dashboardRoutes from '@/routes/dashboard';
-import usersRoutes from '@/routes/users';
-import mallsRoutes from '@/routes/malls';
-import tenantsRoutes from '@/routes/tenants';
-import workPermitsRoutes from '@/routes/work-permits';
-import iotRoutes from '@/routes/iot';
-import aiRoutes from '@/routes/ai';
-import computerVisionRoutes from '@/routes/computer-vision';
-import integrationsRouter from '@/routes/integrations';
-import auditLogRouter from '@/routes/audit-logs';
 import { auditLog } from '@/middleware/audit';
+import aiRoutes from '@/routes/ai';
+import auditLogRouter from '@/routes/audit-logs';
+import authRoutes from '@/routes/auth';
+import cleaningRoutes from '@/routes/cleaning';
+import computerVisionRoutes from '@/routes/computer-vision';
+import dashboardRoutes from '@/routes/dashboard';
+import integrationsRouter from '@/routes/integrations';
+import iotRoutes from '@/routes/iot';
+import mallsRoutes from '@/routes/malls';
+import tasksRoutes from '@/routes/tasks';
+import tenantsRoutes from '@/routes/tenants';
+import usersRoutes from '@/routes/users';
+import workPermitsRoutes from '@/routes/work-permits';
 
 // Import middleware
 import { authMiddleware } from '@/middleware/auth';
-import { errorHandler } from '@/middleware/errorHandler';
 import { rateLimiter } from '@/middleware/rateLimiter';
 
 class MallOSApplication {
@@ -258,7 +259,8 @@ class MallOSApplication {
     this.app.use('/api/malls', authMiddleware, mallsRoutes);
     this.app.use('/api/tenants', authMiddleware, tenantsRoutes);
     this.app.use('/api/work-permits', authMiddleware, workPermitsRoutes);
-    
+    this.app.use('/api/tasks', tasksRoutes);
+
     // IoT & AI routes
     this.app.use('/api/iot', iotRoutes);
     this.app.use('/api/ai', aiRoutes);
@@ -269,6 +271,9 @@ class MallOSApplication {
 
     // --- Register audit log router with full security stack ---
     this.app.use('/api/audit-logs', auditLogRouter);
+
+    // --- Register cleaning management router ---
+    this.app.use('/api/cleaning', cleaningRoutes);
 
     // API documentation
     this.app.get('/api', (req, res) => {
@@ -283,11 +288,13 @@ class MallOSApplication {
           malls: '/api/malls',
           tenants: '/api/tenants',
           workPermits: '/api/work-permits',
+          tasks: '/api/tasks',
           iot: '/api/iot',
           ai: '/api/ai',
           computerVision: '/api/computer-vision',
           integrations: '/api/integrations',
-          auditLogs: '/api/audit-logs'
+          auditLogs: '/api/audit-logs',
+          cleaning: '/api/cleaning'
         }
       });
     });
@@ -405,7 +412,7 @@ class MallOSApplication {
    */
   private setupErrorHandling(): void {
     // Global error handler for security and RBAC violations
-    this.app.use((err, req, res, next) => {
+    this.app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
       if (err.name === 'UnauthorizedError') {
         return res.status(401).json({ success: false, error: 'Unauthorized' });
       }
@@ -514,4 +521,4 @@ app.start().catch((error) => {
   process.exit(1);
 });
 
-export default app; 
+export default app;

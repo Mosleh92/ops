@@ -1,21 +1,23 @@
-import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from 'react-query'
-import { 
-  Plus, 
-  Search, 
-  Filter, 
-  MoreHorizontal, 
-  Edit, 
-  Trash2, 
-  CheckCircle, 
-  XCircle,
-  Store,
-  Building2
-} from 'lucide-react'
 import { tenantsApi } from '@/services/api'
+import {
+    BarChart3,
+    Building2,
+    CheckCircle,
+    Edit,
+    Filter,
+    MoreHorizontal,
+    Plus,
+    Search,
+    Store,
+    XCircle
+} from 'lucide-react'
+import { useState } from 'react'
 import toast from 'react-hot-toast'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
+import { useNavigate } from 'react-router-dom'
 
 export default function Tenants() {
+  const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
@@ -76,10 +78,10 @@ export default function Tenants() {
       PENDING_APPROVAL: { color: 'bg-warning-100 text-warning-800', icon: MoreHorizontal },
       REJECTED: { color: 'bg-danger-100 text-danger-800', icon: XCircle },
     }
-    
+
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.PENDING_APPROVAL
     const Icon = config.icon
-    
+
     return (
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
         <Icon className="w-3 h-3 mr-1" />
@@ -98,10 +100,22 @@ export default function Tenants() {
             Manage mall tenants and their registrations
           </p>
         </div>
-        <button className="btn btn-primary">
-          <Plus className="h-4 w-4 mr-2" />
-          Register Tenant
-        </button>
+        <div className="flex space-x-2">
+          <button
+            onClick={() => navigate('/tenants/stats')}
+            className="btn btn-secondary"
+          >
+            <BarChart3 className="h-4 w-4 mr-2" />
+            Statistics
+          </button>
+          <button
+            onClick={() => navigate('/tenants/register')}
+            className="btn btn-primary"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Register Tenant
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -123,7 +137,7 @@ export default function Tenants() {
                 />
               </div>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Status
@@ -139,7 +153,7 @@ export default function Tenants() {
                 <option value="REJECTED">Rejected</option>
               </select>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Type
@@ -156,7 +170,7 @@ export default function Tenants() {
                 <option value="ENTERTAINMENT">Entertainment</option>
               </select>
             </div>
-            
+
             <div className="flex items-end">
               <button
                 onClick={() => {
@@ -269,7 +283,11 @@ export default function Tenants() {
                                 </button>
                               </>
                             )}
-                            <button className="text-primary-600 hover:text-primary-900" title="Edit">
+                            <button
+                              onClick={() => navigate(`/tenants/${tenant.id}`)}
+                              className="text-primary-600 hover:text-primary-900"
+                              title="View Details"
+                            >
                               <Edit className="h-4 w-4" />
                             </button>
                             <button className="text-gray-400 hover:text-gray-600" title="More">
@@ -315,4 +333,4 @@ export default function Tenants() {
       </div>
     </div>
   )
-} 
+}

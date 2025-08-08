@@ -1,423 +1,314 @@
-# MallOS Enterprise - IoT & AI Integration Hub
+# MallOS Enterprise - نظام إدارة المراكز التجارية المتقدم
 
-A comprehensive mall management platform with advanced IoT, AI, and Computer Vision capabilities for enterprise-level shopping center operations.
+## نظرة عامة
 
-## 🚀 Phase 2: IoT & AI Features
+MallOS Enterprise هو نظام إدارة شامل للمراكز التجارية يجمع بين الذكاء الاصطناعي وإنترنت الأشياء (IoT) لتوفير حلول متكاملة لإدارة المراكز التجارية الحديثة.
 
-### Overview
+## المميزات الرئيسية
 
-Phase 2 introduces cutting-edge IoT and AI technologies to transform mall management into a smart, predictive, and automated system. This phase includes:
+### 🔐 نظام المصادقة المتقدم
+- **تسجيل دخول متعدد الأدوار**: مدير عام، مدير العمليات، حارس الأمن
+- **مصادقة ثنائية العوامل (2FA)**: حماية إضافية للمدير العام
+- **QR Code Scanner**: تسجيل دخول سريع للحرس
+- **وضع عدم الاتصال**: عمل مستمر حتى بدون إنترنت
 
-- **IoT Integration Hub** - Real-time sensor management and data collection
-- **AI Analytics Engine** - Machine learning-powered insights and predictions
-- **Computer Vision Security System** - Advanced security monitoring and threat detection
-- **Smart Analytics Dashboard** - Real-time visualization and decision support
+### 🏢 إدارة المستأجرين والمراكز
+- **إدارة المستأجرين**: ملفات شاملة، عقود الإيجار، المدفوعات
+- **إدارة المراكز**: معلومات المراكز، الخرائط، الإحصائيات
+- **نظام التصاريح**: تصاريح العمل العامة (GWP)
+- **إدارة المستخدمين**: صلاحيات متعددة المستويات
 
-## 🏗️ Architecture
+### 🤖 الذكاء الاصطناعي والتحليلات
+- **تحليلات ذكية**: تحليل حركة الزبائن، الإيرادات، الأداء
+- **رؤية حاسوبية**: مراقبة الأمن، تحليل الصور، التعرف على الوجوه
+- **تنبؤات ذكية**: توقع الإيرادات، تحليل الاتجاهات
+- **تقارير تفاعلية**: لوحات تحكم ديناميكية
 
-### Backend Services
+### 📡 إنترنت الأشياء (IoT)
+- **أجهزة استشعار ذكية**: مراقبة درجة الحرارة، الرطوبة، الطاقة
+- **أنظمة الأمان**: كاميرات ذكية، أجهزة إنذار
+- **إدارة الطاقة**: تحكم ذكي في الإضاءة والتهوية
+- **مراقبة الصيانة**: تنبيهات تلقائية للأعطال
 
-#### 1. IoT Service (`src/services/IoTService.ts`)
-- **MQTT Integration**: Real-time device communication using MQTT protocol
-- **Device Management**: Registration, authentication, and status monitoring
-- **Sensor Data Processing**: Real-time data collection and quality assessment
-- **Command System**: Remote device control and configuration
-- **Alert Management**: Threshold-based alerting and notification system
+### 💳 نظام المدفوعات
+- **مدفوعات متعددة**: بطاقات ائتمان، محافظ إلكترونية، تحويلات بنكية
+- **فواتير تلقائية**: إنشاء وإرسال فواتير تلقائية
+- **تقارير مالية**: تحليلات مفصلة للإيرادات والمصروفات
+- **تكامل مع Stripe**: معالجة آمنة للمدفوعات
 
-**Key Features:**
-- Supports 10,000+ IoT devices simultaneously
-- Device certificate-based authentication
-- Real-time data streaming via Socket.IO
-- Redis caching for high-performance data access
-- Automatic device health monitoring
+### 🔗 التكامل مع الأنظمة الخارجية
+- **Salesforce**: إدارة علاقات العملاء
+- **SAP**: إدارة الموارد المؤسسية
+- **Oracle Financials**: الأنظمة المالية
+- **Dynamics 365**: إدارة الأعمال
+- **Stripe**: معالجة المدفوعات
 
-#### 2. AI Analytics Service (`src/services/AIAnalyticsService.ts`)
-- **TensorFlow.js Integration**: Machine learning model deployment and inference
-- **Predictive Analytics**: Revenue forecasting, foot traffic prediction, energy optimization
-- **Customer Behavior Analysis**: Pattern recognition and segmentation
-- **Anomaly Detection**: Real-time detection of unusual patterns
-- **Model Management**: Training, deployment, and versioning of ML models
+## البنية التقنية
 
-**Key Features:**
-- 95% accuracy revenue forecasting using time series analysis
-- Real-time customer behavior pattern analysis
-- Dynamic pricing recommendations
-- Predictive maintenance scheduling
-- Energy consumption optimization
+### Backend (Node.js + TypeScript)
+```
+src/
+├── config/           # إعدادات النظام
+├── database/         # قاعدة البيانات والهجرات
+├── middleware/       # الوسائط البرمجية
+├── models/          # نماذج البيانات
+├── routes/          # مسارات API
+├── services/        # خدمات الأعمال
+└── utils/           # أدوات مساعدة
+```
 
-#### 3. Computer Vision Service (`src/services/ComputerVisionService.ts`)
-- **OpenCV Integration**: Advanced image processing and analysis
-- **Face Recognition**: Real-time facial recognition and identification
-- **Behavior Analysis**: Suspicious behavior detection and risk assessment
-- **Crowd Analytics**: Density monitoring and flow analysis
-- **Security Monitoring**: Fire/smoke detection, violence detection, theft prevention
+### Frontend (React + TypeScript)
+```
+frontend/src/
+├── components/      # المكونات القابلة لإعادة الاستخدام
+├── contexts/        # سياقات React
+├── hooks/          # خطافات مخصصة
+├── pages/          # صفحات التطبيق
+├── services/       # خدمات API
+└── types/          # تعريفات TypeScript
+```
 
-**Key Features:**
-- Real-time video stream processing
-- VIP customer recognition and tracking
-- Social distancing monitoring
-- License plate recognition
-- Automated security alert generation
+### قاعدة البيانات
+- **PostgreSQL**: قاعدة البيانات الرئيسية
+- **Redis**: التخزين المؤقت والجلسات
+- **MongoDB**: تخزين البيانات غير المنظمة
+- **Elasticsearch**: البحث والتحليلات
 
-### Database Schema
+## التثبيت والإعداد
 
-#### New Entities
-
-1. **IoTDevice** (`src/models/IoTDevice.ts`)
-   - Device registration and configuration
-   - Status tracking and health monitoring
-   - Location and type management
-
-2. **SensorData** (`src/models/SensorData.ts`)
-   - Time-series optimized sensor data storage
-   - Data quality assessment
-   - AI insights and predictions
-
-3. **AIModel** (`src/models/AIModel.ts`)
-   - Machine learning model metadata
-   - Training history and performance metrics
-   - Deployment configuration
-
-4. **AIPrediction** (`src/models/AIPrediction.ts`)
-   - Prediction results and accuracy tracking
-   - Input/output data storage
-   - Recommendations and alerts
-
-5. **ComputerVision** (`src/models/ComputerVision.ts`)
-   - Detection results and metadata
-   - Facial recognition data
-   - Security alerts and threat assessment
-
-### API Endpoints
-
-#### IoT Endpoints (`/api/iot`)
-- `GET /devices` - List all IoT devices
-- `POST /devices` - Register new device
-- `GET /devices/:deviceId` - Get device details
-- `POST /devices/:deviceId/command` - Send command to device
-- `GET /devices/:deviceId/data` - Get sensor data
-- `GET /data/stream` - Real-time data streaming (SSE)
-- `POST /data/bulk` - Bulk data upload
-- `GET /analytics` - IoT analytics
-- `GET /alerts` - Device alerts
-
-#### AI Endpoints (`/api/ai`)
-- `GET /models` - List AI models
-- `POST /models` - Create new model
-- `POST /models/:modelId/train` - Train model
-- `GET /models/:modelId` - Get model details
-- `GET /predictions` - List predictions
-- `POST /predictions` - Make prediction
-- `POST /forecast/revenue` - Revenue forecasting
-- `POST /analytics/customer-behavior` - Behavior analysis
-- `POST /anomalies` - Anomaly detection
-
-#### Computer Vision Endpoints (`/api/computer-vision`)
-- `GET /cameras` - List security cameras
-- `POST /cameras` - Add new camera
-- `GET /cameras/:cameraId/stream` - Video stream
-- `GET /detections` - List detections
-- `GET /detections/:detectionId` - Get detection details
-- `POST /detections/:detectionId/verify` - Verify detection
-- `GET /alerts` - Security alerts
-- `POST /alerts/:alertId/acknowledge` - Acknowledge alert
-- `GET /analytics` - Computer vision analytics
-- `GET /stream/alerts` - Real-time alerts (SSE)
-
-### Frontend Dashboards
-
-#### 1. IoT Dashboard (`frontend/src/pages/IoTDashboard.tsx`)
-- **Real-time Device Monitoring**: Live status of all IoT devices
-- **Sensor Data Visualization**: Charts and graphs for sensor data
-- **Device Management**: Add, configure, and control devices
-- **Alert Management**: View and respond to device alerts
-- **Energy Analytics**: Consumption monitoring and optimization
-- **Heatmap Visualization**: Device location and status mapping
-
-#### 2. AI Analytics Dashboard (`frontend/src/pages/AIAnalyticsDashboard.tsx`)
-- **Model Management**: View and manage AI models
-- **Prediction Results**: Visualize AI predictions and accuracy
-- **Revenue Forecasting**: Interactive revenue prediction charts
-- **Customer Behavior Insights**: Segmentation and pattern analysis
-- **Anomaly Detection**: Real-time anomaly monitoring
-- **Performance Metrics**: Model accuracy and performance tracking
-
-#### 3. Computer Vision Dashboard (`frontend/src/pages/ComputerVisionDashboard.tsx`)
-- **Security Camera Management**: Monitor and configure cameras
-- **Detection Results**: View facial recognition and behavior analysis
-- **Security Alerts**: Real-time security incident monitoring
-- **Crowd Analytics**: Density and flow analysis
-- **Threat Assessment**: Risk level monitoring and alerting
-- **Video Streams**: Live camera feeds with AI overlays
-
-## 🛠️ Installation & Setup
-
-### Prerequisites
+### المتطلبات الأساسية
 - Node.js 18+ 
 - PostgreSQL 14+
 - Redis 6+
-- Docker & Docker Compose (optional)
+- Docker (اختياري)
 
-### Backend Setup
+### التثبيت السريع
 
-1. **Install Dependencies**
+1. **استنساخ المشروع**
 ```bash
-npm install
+git clone https://github.com/mallos-enterprise/mallos-platform.git
+cd mallos-platform
 ```
 
-2. **Environment Configuration**
+2. **تثبيت التبعيات**
+```bash
+# Backend dependencies
+npm install
+
+# Frontend dependencies
+cd frontend
+npm install
+cd ..
+```
+
+3. **إعداد البيئة**
 ```bash
 cp env.example .env
-# Configure your environment variables
+# تعديل ملف .env بالمعلومات المطلوبة
 ```
 
-3. **Database Setup**
+4. **إعداد قاعدة البيانات**
 ```bash
-# Run migrations
+# تشغيل الهجرات
 npm run migrate
 
-# Seed initial data
+# إدخال البيانات الأولية
 npm run seed
 ```
 
-4. **Start Services**
+5. **تشغيل النظام**
 ```bash
-# Development mode
+# تشغيل Backend
 npm run dev
 
-# Production mode
-npm run build
-npm start
-```
-
-### Frontend Setup
-
-1. **Install Dependencies**
-```bash
+# تشغيل Frontend (في terminal منفصل)
 cd frontend
-npm install
-```
-
-2. **Start Development Server**
-```bash
 npm run dev
 ```
 
-### Docker Deployment
+### التثبيت باستخدام Docker
 
 ```bash
-# Build and start all services
+# بناء وتشغيل جميع الخدمات
 docker-compose up -d
 
-# View logs
+# عرض السجلات
 docker-compose logs -f
 ```
 
-## 🔧 Configuration
+## الأدوار والصلاحيات
 
-### IoT Configuration
+### 👑 المدير العام (Super Admin)
+- **الوصول الكامل**: جميع الميزات والإعدادات
+- **إدارة المستأجرين**: إنشاء وإدارة المستأجرين الجدد
+- **إعدادات النظام**: تكوين الميزات والسياسات
+- **التقارير الشاملة**: جميع البيانات والإحصائيات
 
-```typescript
-// MQTT Configuration
-MQTT_BROKER_URL=mqtt://localhost:1883
-MQTT_USERNAME=admin
-MQTT_PASSWORD=secure_password
+### 🏢 مدير العمليات (Mall Operations Manager)
+- **لوحة التحكم الرئيسية**: نظرة شاملة على المركز التجاري
+- **إدارة المستأجرين**: مراقبة العقود والمدفوعات
+- **التصاريح**: مراجعة وإقرار تصاريح العمل
+- **التواصل**: إرسال إشعارات وإعلانات
 
-// Device Authentication
-DEVICE_CERT_PATH=/certs/devices
-DEVICE_CERT_EXPIRY=365
+### 🛡️ حارس الأمن (Security Guard)
+- **التطبيق المحمول**: واجهة مخصصة للأجهزة المحمولة
+- **مسح QR Code**: تسجيل دخول سريع
+- **قوائم الفحص**: فحوصات أمنية رقمية
+- **التوثيق**: صور وملاحظات للانتهاكات
+
+## واجهات المستخدم
+
+### صفحات تسجيل الدخول
+- **login-operations.html**: واجهة مدير العمليات
+- **login-guard.html**: واجهة حارس الأمن (محمول)
+- **login-superadmin.html**: واجهة المدير العام
+
+### لوحات التحكم
+- **لوحة التحكم الرئيسية**: نظرة عامة على النظام
+- **لوحة إدارة المستأجرين**: إدارة المستأجرين والعقود
+- **لوحة IoT**: مراقبة الأجهزة الذكية
+- **لوحة الذكاء الاصطناعي**: التحليلات والتنبؤات
+
+## API Documentation
+
+### نقاط النهاية الرئيسية
+
+#### المصادقة
+```http
+POST /api/auth/login
+POST /api/auth/logout
+POST /api/auth/refresh
 ```
 
-### AI Configuration
-
-```typescript
-// TensorFlow.js Configuration
-TENSORFLOW_GPU_ENABLED=true
-MODEL_STORAGE_PATH=/models
-TRAINING_DATA_PATH=/data/training
-
-// Model Performance
-PREDICTION_TIMEOUT=30000
-BATCH_SIZE=32
+#### المستأجرين
+```http
+GET /api/tenants
+POST /api/tenants
+PUT /api/tenants/:id
+DELETE /api/tenants/:id
 ```
 
-### Computer Vision Configuration
-
-```typescript
-// OpenCV Configuration
-OPENCV_CASCADE_PATH=/opencv/cascades
-FACE_RECOGNITION_MODEL_PATH=/models/face-api
-VIDEO_STREAM_BUFFER_SIZE=10
-
-// Security Settings
-THREAT_DETECTION_SENSITIVITY=0.8
-ALERT_COOLDOWN_PERIOD=300
+#### المراكز التجارية
+```http
+GET /api/malls
+POST /api/malls
+PUT /api/malls/:id
+GET /api/malls/:id/analytics
 ```
 
-## 📊 Usage Examples
-
-### IoT Device Registration
-
-```typescript
-// Register a new temperature sensor
-const device = await iotService.registerDevice({
-  deviceId: 'temp-sensor-001',
-  mallId: 'mall-123',
-  name: 'Main Entrance Temperature Sensor',
-  type: DeviceType.SENSOR,
-  location: {
-    area: 'Main Entrance',
-    floor: '1',
-    coordinates: { lat: 40.7128, lng: -74.0060 }
-  },
-  configuration: {
-    sensorType: SensorType.TEMPERATURE,
-    samplingRate: 60,
-    threshold: { min: 18, max: 25 }
-  }
-});
+#### IoT
+```http
+GET /api/iot/devices
+POST /api/iot/devices
+GET /api/iot/sensor-data
+POST /api/iot/commands
 ```
 
-### AI Model Training
-
-```typescript
-// Train a revenue forecasting model
-await aiAnalyticsService.trainModel({
-  modelId: 'revenue-forecast-v1',
-  dataSource: 'financial_data',
-  features: ['foot_traffic', 'season', 'events', 'weather'],
-  target: 'daily_revenue',
-  hyperparameters: {
-    epochs: 100,
-    batchSize: 32,
-    learningRate: 0.001
-  }
-});
+#### الذكاء الاصطناعي
+```http
+GET /api/ai/analytics
+POST /api/ai/predictions
+GET /api/ai/computer-vision
 ```
 
-### Computer Vision Detection
+## الأمان
 
-```typescript
-// Process security camera feed
-const detection = await computerVisionService.processFrame({
-  cameraId: 'security-cam-001',
-  frame: imageBuffer,
-  features: [
-    VisionType.FACIAL_RECOGNITION,
-    VisionType.BEHAVIOR_ANALYSIS,
-    VisionType.CROWD_ANALYSIS
-  ]
-});
-```
+### حماية البيانات
+- **تشفير البيانات**: تشفير جميع البيانات الحساسة
+- **عزل المستأجرين**: فصل كامل لبيانات كل مستأجر
+- **سجلات التدقيق**: تتبع جميع العمليات
+- **نسخ احتياطية**: نسخ احتياطية تلقائية
 
-## 🔒 Security Features
+### أمان التطبيق
+- **JWT Tokens**: مصادقة آمنة
+- **Rate Limiting**: حماية من الهجمات
+- **CORS**: حماية من الطلبات غير المصرح بها
+- **Helmet**: حماية رؤوس HTTP
 
-### IoT Security
-- Device certificate-based authentication
-- Encrypted MQTT communication
-- Rate limiting for API endpoints
-- Data encryption for sensitive sensor data
+## النشر والإنتاج
 
-### AI Security
-- Model versioning and integrity checks
-- Secure model deployment
-- Input validation and sanitization
-- Access control for model management
-
-### Computer Vision Security
-- Secure video stream handling
-- Privacy-compliant facial recognition
-- Encrypted storage of detection data
-- Audit logging for all security events
-
-## 📈 Performance Optimization
-
-### IoT Performance
-- Redis caching for real-time data
-- Database indexing for time-series queries
-- Connection pooling for device communication
-- Batch processing for sensor data
-
-### AI Performance
-- GPU acceleration for model inference
-- Model quantization for faster inference
-- Background job processing
-- Distributed training capabilities
-
-### Computer Vision Performance
-- Multi-threaded video processing
-- Hardware acceleration (GPU/TPU)
-- Optimized image processing pipelines
-- Real-time detection optimization
-
-## 🧪 Testing
-
-### Unit Tests
+### إعدادات الإنتاج
 ```bash
-npm run test:unit
+# بناء التطبيق
+npm run build
+
+# تشغيل في وضع الإنتاج
+npm start
 ```
 
-### Integration Tests
-```bash
-npm run test:integration
+### متغيرات البيئة المطلوبة
+```env
+# قاعدة البيانات
+DATABASE_URL=postgresql://user:password@localhost:5432/mallos
+REDIS_URL=redis://localhost:6379
+
+# JWT
+JWT_SECRET=your-secret-key
+JWT_EXPIRES_IN=24h
+
+# خدمات خارجية
+STRIPE_SECRET_KEY=sk_test_...
+SALESFORCE_CLIENT_ID=...
+SAP_BASE_URL=...
+
+# إعدادات التطبيق
+NODE_ENV=production
+PORT=3001
+CORS_ORIGIN=https://your-domain.com
 ```
 
-### End-to-End Tests
-```bash
-npm run test:e2e
-```
+## الدعم والصيانة
 
-## 📚 API Documentation
+### السجلات والمراقبة
+- **Winston**: سجلات مفصلة
+- **Sentry**: مراقبة الأخطاء
+- **Prometheus**: مقاييس الأداء
+- **Grafana**: لوحات المراقبة
 
-### Swagger UI
-Access the interactive API documentation at:
-```
-http://localhost:3001/api-docs
-```
+### النسخ الاحتياطية
+- **نسخ احتياطية يومية**: قاعدة البيانات
+- **نسخ احتياطية أسبوعية**: الملفات
+- **استعادة سريعة**: إجراءات الاستعادة
 
-### Postman Collection
-Import the Postman collection from:
-```
-docs/postman/MallOS_Enterprise_API.postman_collection.json
-```
+## المساهمة
 
-## 🤝 Contributing
+### إرشادات التطوير
+1. Fork المشروع
+2. إنشاء فرع للميزة الجديدة
+3. Commit التغييرات
+4. Push إلى الفرع
+5. إنشاء Pull Request
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
+### معايير الكود
+- **TypeScript**: استخدام TypeScript لجميع الملفات
+- **ESLint**: تنسيق الكود
+- **Prettier**: تنسيق تلقائي
+- **Jest**: اختبارات الوحدة
 
-## 📄 License
+## الترخيص
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+هذا المشروع مرخص تحت رخصة MIT. راجع ملف [LICENSE](LICENSE) للتفاصيل.
 
-## 🆘 Support
+## الدعم والاتصال
 
-For support and questions:
-- Email: support@mallos.com
-- Documentation: https://docs.mallos.com
-- Issues: https://github.com/mallos-enterprise/mallos-platform/issues
+- **البريد الإلكتروني**: support@mallos.com
+- **الموقع الإلكتروني**: https://mallos.com
+- **التوثيق**: https://docs.mallos.com
+- **المساعدة**: https://help.mallos.com
 
-## 🔮 Roadmap
+## الإصدارات
 
-### Phase 3: Advanced Features
-- Blockchain integration for secure transactions
-- Advanced machine learning models
-- Mobile app development
-- Third-party integrations
-- Advanced reporting and analytics
+### الإصدار الحالي: 2.1.0
+- تحسينات في الأداء
+- ميزات أمان جديدة
+- واجهات مستخدم محسنة
+- دعم أفضل للأجهزة المحمولة
+
+### الإصدارات السابقة
+- **2.0.0**: إطلاق النسخة الرئيسية
+- **1.5.0**: إضافة ميزات IoT
+- **1.0.0**: الإصدار الأولي
 
 ---
 
-**MallOS Enterprise** - Transforming mall management with IoT & AI technology. #   m o l l s  
- #   m o l l s  
- #   m o l l s  
- # molls
-# molls
-# molls
-<<<<<<< HEAD
-=======
-# molls
->>>>>>> 3a6703c (first commit)
+**MallOS Enterprise** - نظام إدارة المراكز التجارية المتقدم 🏢✨ 

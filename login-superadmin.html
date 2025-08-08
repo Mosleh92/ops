@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MallOS - تسجيل دخول المدير العام</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        .admin-gradient {
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+        }
+        
+        .admin-glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-admin {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-admin:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+        
+        .security-grid {
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .matrix-animation {
+            animation: matrix 20s linear infinite;
+        }
+        
+        @keyframes matrix {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
+        }
+        
+        .pulse-border {
+            animation: pulse-border 2s infinite;
+        }
+        
+        @keyframes pulse-border {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7); }
+            50% { box-shadow: 0 0 0 20px rgba(102, 126, 234, 0); }
+        }
+        
+        .typing-effect {
+            overflow: hidden;
+            border-right: 2px solid #667eea;
+            white-space: nowrap;
+            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: #667eea; }
+        }
+        
+        .security-level {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24, #ff6b6b);
+            background-size: 200% 200%;
+            animation: security-pulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes security-pulse {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+    </style>
+</head>
+<body class="admin-gradient min-h-screen security-grid">
+    <!-- Matrix Background -->
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute inset-0 opacity-5">
+            <div class="matrix-animation text-green-400 text-xs font-mono">
+                <div class="whitespace-pre">01010101 10101010 01010101 10101010</div>
+                <div class="whitespace-pre">10101010 01010101 10101010 01010101</div>
+                <div class="whitespace-pre">01010101 10101010 01010101 10101010</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
+        <div class="w-full max-w-lg">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-24 h-24 bg-white rounded-full mb-6 shadow-2xl pulse-border">
+                    <i class="fas fa-user-shield text-4xl text-purple-600"></i>
+                </div>
+                <h1 class="text-4xl font-bold text-white mb-3 typing-effect">MallOS Enterprise</h1>
+                <p class="text-white opacity-90 text-lg">نظام إدارة المراكز التجارية المتقدم</p>
+                <div class="mt-4 inline-flex items-center px-4 py-2 security-level rounded-full text-white text-sm font-bold">
+                    <i class="fas fa-shield-alt ml-2"></i>
+                    مستوى الأمان: عالي جداً
+                </div>
+            </div>
+
+            <!-- Login Form -->
+            <div class="admin-glass rounded-3xl p-8 shadow-2xl">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold text-white mb-2">تسجيل دخول المدير العام</h2>
+                    <p class="text-white opacity-75">الوصول الكامل للنظام</p>
+                </div>
+
+                <form id="loginForm" class="space-y-6">
+                    <!-- Username Input -->
+                    <div>
+                        <label for="username" class="block text-white text-sm font-medium mb-2">
+                            <i class="fas fa-user ml-2"></i>
+                            اسم المستخدم
+                        </label>
+                        <input 
+                            type="text" 
+                            id="username" 
+                            name="username"
+                            class="w-full px-4 py-3 bg-white bg-opacity-20 border border-white border-opacity-30 rounded-lg text-white placeholder-white placeholder-opacity-70 focus:outline-none focus:border-white focus:ring-2 focus:ring-purple-400 transition-all duration-300"
+                            placeholder="أدخل اسم المستخدم"
+                            required
+                        >
+                    </div>
+
+                    <!-- Password Input -->
+                    <div>
+                        <label for="password" class="block text-white text-sm font-medium mb-2">
+                            <i class="fas fa-lock ml-2"></i>
+                            كلمة المرور
+                        </label>
+                        <div class="relative">
+                            <input 
+                                type="password" 
+                                id="password" 
+                                name="password"
+                                class="w-full px-4 py-3 bg-white bg-opacity-20 border border-white border-opacity-30 rounded-lg text-white placeholder-white placeholder-opacity-70 focus:outline-none focus:border-white focus:ring-2 focus:ring-purple-400 transition-all duration-300 pr-12"
+                                placeholder="أدخل كلمة المرور"
+                                required
+                            >
+                            <button 
+                                type="button" 
+                                id="togglePassword"
+                                class="absolute left-3 top-1/2 transform -translate-y-1/2 text-white opacity-70 hover:opacity-100 transition-opacity"
+                            >
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Two-Factor Authentication -->
+                    <div>
+                        <label for="totp" class="block text-white text-sm font-medium mb-2">
+                            <i class="fas fa-mobile-alt ml-2"></i>
+                            رمز المصادقة الثنائية
+                        </label>
+                        <div class="relative">
+                            <input 
+                                type="text" 
+                                id="totp" 
+                                name="totp"
+                                maxlength="6"
+                                class="w-full px-4 py-3 bg-white bg-opacity-20 border border-white border-opacity-30 rounded-lg text-white placeholder-white placeholder-opacity-70 focus:outline-none focus:border-white focus:ring-2 focus:ring-purple-400 transition-all duration-300 text-center text-2xl tracking-widest"
+                                placeholder="000000"
+                            >
+                            <button 
+                                type="button" 
+                                id="generateTOTP"
+                                class="absolute left-3 top-1/2 transform -translate-y-1/2 text-white opacity-70 hover:opacity-100 transition-opacity"
+                                title="توليد رمز جديد"
+                            >
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Security Options -->
+                    <div class="space-y-3">
+                        <label class="flex items-center text-white text-sm">
+                            <input type="checkbox" id="rememberMe" class="ml-2 rounded border-white border-opacity-30 bg-white bg-opacity-20">
+                            تذكرني لمدة 30 يوم
+                        </label>
+                        <label class="flex items-center text-white text-sm">
+                            <input type="checkbox" id="secureMode" class="ml-2 rounded border-white border-opacity-30 bg-white bg-opacity-20">
+                            الوضع الآمن (تسجيل خروج تلقائي)
+                        </label>
+                    </div>
+
+                    <!-- Login Button -->
+                    <button 
+                        type="submit" 
+                        class="w-full btn-admin text-white font-bold py-4 px-6 rounded-lg text-lg"
+                        id="loginBtn"
+                    >
+                        <i class="fas fa-sign-in-alt ml-2"></i>
+                        تسجيل الدخول الآمن
+                    </button>
+                </form>
+
+                <!-- Quick Actions -->
+                <div class="mt-6 pt-6 border-t border-white border-opacity-20">
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <button 
+                            id="forgotPassword"
+                            class="flex items-center justify-center px-4 py-2 bg-white bg-opacity-20 rounded-lg text-white text-sm hover:bg-opacity-30 transition-all duration-300"
+                        >
+                            <i class="fas fa-key ml-2"></i>
+                            استعادة كلمة المرور
+                        </button>
+                        <button 
+                            id="systemStatus"
+                            class="flex items-center justify-center px-4 py-2 bg-white bg-opacity-20 rounded-lg text-white text-sm hover:bg-opacity-30 transition-all duration-300"
+                        >
+                            <i class="fas fa-server ml-2"></i>
+                            حالة النظام
+                        </button>
+                    </div>
+                    
+                    <div class="text-center">
+                        <p class="text-white opacity-75 text-sm mb-3">أو سجل دخول كـ:</p>
+                        <div class="flex justify-center space-x-3 space-x-reverse">
+                            <a href="login-operations.html" class="flex items-center px-4 py-2 bg-white bg-opacity-20 rounded-lg text-white text-sm hover:bg-opacity-30 transition-all duration-300">
+                                <i class="fas fa-building ml-2"></i>
+                                مدير العمليات
+                            </a>
+                            <a href="login-guard.html" class="flex items-center px-4 py-2 bg-white bg-opacity-20 rounded-lg text-white text-sm hover:bg-opacity-30 transition-all duration-300">
+                                <i class="fas fa-shield-alt ml-2"></i>
+                                حارس أمن
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Status -->
+            <div class="mt-6 admin-glass rounded-2xl p-4">
+                <div class="flex items-center justify-between text-white text-sm">
+                    <div class="flex items-center">
+                        <div class="w-2 h-2 bg-green-400 rounded-full ml-2"></div>
+                        <span>النظام: متصل</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-users ml-1"></i>
+                        <span id="activeUsers">0</span> مستخدم نشط
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-clock ml-1"></i>
+                        <span id="lastUpdate">الآن</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center mt-8">
+                <p class="text-white opacity-75 text-sm">
+                    © 2024 MallOS Enterprise. جميع الحقوق محفوظة
+                </p>
+                <p class="text-white opacity-50 text-xs mt-1">
+                    الإصدار 2.1.0 | آخر تحديث: ديسمبر 2024
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-8 flex flex-col items-center space-y-4">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+            <span class="text-gray-700 font-bold">جاري التحقق من الأمان...</span>
+            <div class="w-64 bg-gray-200 rounded-full h-2">
+                <div id="progressBar" class="bg-purple-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Status Modal -->
+    <div id="systemStatusModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="admin-glass rounded-2xl p-6 max-w-md mx-4 w-full">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-white">حالة النظام</h3>
+                <button id="closeSystemStatus" class="text-white opacity-70 hover:opacity-100">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="space-y-3 text-white">
+                <div class="flex justify-between">
+                    <span>قاعدة البيانات:</span>
+                    <span class="text-green-400">متصل</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Redis Cache:</span>
+                    <span class="text-green-400">متصل</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>IoT Hub:</span>
+                    <span class="text-green-400">متصل</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>AI Services:</span>
+                    <span class="text-green-400">متصل</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Security API:</span>
+                    <span class="text-green-400">متصل</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Password Toggle
+        const togglePassword = document.getElementById('togglePassword');
+        const password = document.getElementById('password');
+        const eyeIcon = togglePassword.querySelector('i');
+
+        togglePassword.addEventListener('click', () => {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            eyeIcon.classList.toggle('fa-eye');
+            eyeIcon.classList.toggle('fa-eye-slash');
+        });
+
+        // TOTP Generation
+        const generateTOTP = document.getElementById('generateTOTP');
+        const totpInput = document.getElementById('totp');
+
+        generateTOTP.addEventListener('click', () => {
+            // Generate a random 6-digit TOTP
+            const totp = Math.floor(100000 + Math.random() * 900000);
+            totpInput.value = totp.toString();
+        });
+
+        // TOTP input formatting
+        totpInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 6);
+        });
+
+        // System Status
+        const systemStatusBtn = document.getElementById('systemStatus');
+        const systemStatusModal = document.getElementById('systemStatusModal');
+        const closeSystemStatus = document.getElementById('closeSystemStatus');
+
+        systemStatusBtn.addEventListener('click', () => {
+            systemStatusModal.classList.remove('hidden');
+        });
+
+        closeSystemStatus.addEventListener('click', () => {
+            systemStatusModal.classList.add('hidden');
+        });
+
+        // Form Submission
+        const loginForm = document.getElementById('loginForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const progressBar = document.getElementById('progressBar');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(loginForm);
+            const username = formData.get('username');
+            const password = formData.get('password');
+            const totp = formData.get('totp');
+
+            // Show loading with progress
+            loadingOverlay.classList.remove('hidden');
+            loginBtn.disabled = true;
+
+            // Simulate security checks
+            const steps = [
+                { progress: 20, message: 'التحقق من اسم المستخدم...' },
+                { progress: 40, message: 'التحقق من كلمة المرور...' },
+                { progress: 60, message: 'التحقق من رمز المصادقة...' },
+                { progress: 80, message: 'التحقق من الصلاحيات...' },
+                { progress: 100, message: 'تم تسجيل الدخول بنجاح!' }
+            ];
+
+            for (let i = 0; i < steps.length; i++) {
+                await new Promise(resolve => setTimeout(resolve, 800));
+                progressBar.style.width = steps[i].progress + '%';
+                document.querySelector('#loadingOverlay span').textContent = steps[i].message;
+            }
+
+            try {
+                // Mock authentication - replace with actual API call
+                if (username === 'admin' && password === 'admin123' && totp === '123456') {
+                    // Store role in localStorage
+                    localStorage.setItem('userRole', 'SUPER_ADMIN');
+                    localStorage.setItem('username', username);
+                    localStorage.setItem('secureMode', document.getElementById('secureMode').checked);
+                    
+                    // Redirect to admin dashboard
+                    window.location.href = '/super-admin/dashboard';
+                } else {
+                    throw new Error('بيانات الدخول غير صحيحة');
+                }
+            } catch (error) {
+                alert(error.message || 'حدث خطأ أثناء تسجيل الدخول');
+            } finally {
+                loadingOverlay.classList.add('hidden');
+                loginBtn.disabled = false;
+                progressBar.style.width = '0%';
+            }
+        });
+
+        // Auto-focus username input
+        document.getElementById('username').focus();
+
+        // Simulate active users count
+        setInterval(() => {
+            const users = Math.floor(Math.random() * 50) + 10;
+            document.getElementById('activeUsers').textContent = users;
+        }, 5000);
+
+        // Update last update time
+        setInterval(() => {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('ar-SA');
+            document.getElementById('lastUpdate').textContent = timeString;
+        }, 1000);
+
+        // Add some interactive effects
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.classList.add('scale-105');
+            });
+            
+            input.addEventListener('blur', () => {
+                input.parentElement.classList.remove('scale-105');
+            });
+        });
+
+        // Security mode warning
+        document.getElementById('secureMode').addEventListener('change', (e) => {
+            if (e.target.checked) {
+                alert('الوضع الآمن مفعل: سيتم تسجيل الخروج تلقائياً بعد 30 دقيقة من عدم النشاط');
+            }
+        });
+    </script>
+</body>
+</html>

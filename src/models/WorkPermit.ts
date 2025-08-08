@@ -1,411 +1,450 @@
 /**
  * MallOS Enterprise - Work Permit Entity
- * Work permit management with safety protocols
+ * Work permit management for mall operations
  */
 
-import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, BeforeInsert } from 'typeorm'
-import { IsEnum, IsNotEmpty, IsOptional, IsString, IsObject, IsDate, IsUUID } from 'class-validator'
-import { v4 as uuidv4 } from 'uuid'
-import { Tenant } from './Tenant'
-import { Mall } from './Mall'
+import { IsDateString, IsEnum, IsNotEmpty, IsOptional } from 'class-validator';
+import {
+    BeforeInsert,
+    Column,
+    CreateDateColumn,
+    Entity,
+    Index,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn
+} from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
 
 export enum WorkPermitType {
-  GENERAL = 'GENERAL',
-  HOT_WORK = 'HOT_WORK',
-  HIGH_LEVEL = 'HIGH_LEVEL',
-  MEDIA = 'MEDIA',
-  SPECIAL = 'SPECIAL'
+  HOT_WORK = 'hot_work',
+  GENERAL = 'general',
+  MAINTENANCE = 'maintenance',
+  HEIGHT_WORKS = 'height_works',
+  DEMOLITION = 'demolition',
+  SERVICE_CLOSURE = 'service_closure',
+  TRADING_HOURS = 'trading_hours',
+  OTHER = 'other'
 }
 
 export enum WorkPermitStatus {
-  PENDING_APPROVAL = 'PENDING_APPROVAL',
-  APPROVED = 'APPROVED',
-  ACTIVE = 'ACTIVE',
-  COMPLETED = 'COMPLETED',
-  REJECTED = 'REJECTED',
-  CANCELLED = 'CANCELLED'
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected',
+  IN_PROGRESS = 'in_progress',
+  COMPLETED = 'completed',
+  CANCELLED = 'cancelled'
 }
 
-export enum RiskLevel {
-  LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
-  HIGH = 'HIGH',
-  CRITICAL = 'CRITICAL'
+export enum ApplicantType {
+  TENANT = 'tenant',
+  CONTRACTOR = 'contractor'
 }
 
-export enum WorkCategory {
-  ELECTRICAL = 'ELECTRICAL',
-  PLUMBING = 'PLUMBING',
-  HVAC = 'HVAC',
-  STRUCTURAL = 'STRUCTURAL',
-  DECORATION = 'DECORATION',
-  MAINTENANCE = 'MAINTENANCE',
-  OTHER = 'OTHER'
+export enum JobType {
+  MAINTENANCE = 'maintenance',
+  REMEDIAL_WORKS = 'remedial_works',
+  NEW_WORKS = 'new_works',
+  HEIGHT_WORKS = 'height_works',
+  SERVICE_CLOSURE = 'service_closure',
+  TRADING_HOURS = 'trading_hours',
+  DEMOLITION_WORKS = 'demolition_works',
+  OTHER = 'other'
 }
 
 @Entity('work_permits')
 @Index(['permitNumber'], { unique: true })
+@Index(['tenantId', 'status'])
+@Index(['mallId', 'status'])
 export class WorkPermit {
   @PrimaryGeneratedColumn('uuid')
-  id!: string
+  id!: string;
 
   @Column({ length: 50, unique: true })
   @IsNotEmpty()
-  permitNumber!: string
+  permitNumber!: string;
 
   @Column({ type: 'uuid' })
-  @IsUUID()
-  tenantId!: string
+  mallId!: string;
 
   @Column({ type: 'uuid', nullable: true })
   @IsOptional()
-  @IsUUID()
-  contractorId?: string
+  tenantId?: string;
 
-  @Column({ type: 'uuid' })
-  @IsUUID()
-  mallId!: string
-
-  @Column({ type: 'enum', enum: WorkPermitType, default: WorkPermitType.GENERAL })
+  @Column({
+    type: 'enum',
+    enum: WorkPermitType,
+    default: WorkPermitType.GENERAL
+  })
   @IsEnum(WorkPermitType)
-  type: WorkPermitType = WorkPermitType.GENERAL
+  permitType: WorkPermitType = WorkPermitType.GENERAL;
 
-  @Column({ type: 'enum', enum: WorkPermitStatus, default: WorkPermitStatus.PENDING_APPROVAL })
+  @Column({
+    type: 'enum',
+    enum: WorkPermitStatus,
+    default: WorkPermitStatus.PENDING
+  })
   @IsEnum(WorkPermitStatus)
-  status: WorkPermitStatus = WorkPermitStatus.PENDING_APPROVAL
+  status: WorkPermitStatus = WorkPermitStatus.PENDING;
 
-  @Column({ type: 'enum', enum: RiskLevel, default: RiskLevel.LOW })
-  @IsEnum(RiskLevel)
-  riskLevel: RiskLevel = RiskLevel.LOW
+  @Column({
+    type: 'enum',
+    enum: ApplicantType,
+    default: ApplicantType.TENANT
+  })
+  @IsEnum(ApplicantType)
+  applicantType: ApplicantType = ApplicantType.TENANT;
 
-  @Column({ type: 'enum', enum: WorkCategory, default: WorkCategory.OTHER })
-  @IsEnum(WorkCategory)
-  category: WorkCategory = WorkCategory.OTHER
+  // Applicant Information
+  @Column({ length: 200 })
+  @IsNotEmpty()
+  companyName!: string;
+
+  @Column({ length: 200, nullable: true })
+  @IsOptional()
+  jobLocation?: string;
+
+  @Column({ length: 100 })
+  @IsNotEmpty()
+  onSiteInCharge!: string;
+
+  @Column({ length: 20 })
+  @IsNotEmpty()
+  contactNumber!: string;
+
+  @Column({ length: 50, nullable: true })
+  @IsOptional()
+  refNumber?: string;
+
+  // Job Details
+  @Column({ type: 'date' })
+  @IsDateString()
+  jobDateFrom!: Date;
+
+  @Column({ type: 'date' })
+  @IsDateString()
+  jobDateTo!: Date;
+
+  @Column({ length: 10 })
+  @IsNotEmpty()
+  jobTimeFrom!: string;
+
+  @Column({ length: 10 })
+  @IsNotEmpty()
+  jobTimeTo!: string;
+
+  @Column({
+    type: 'enum',
+    enum: JobType,
+    default: JobType.MAINTENANCE
+  })
+  @IsEnum(JobType)
+  jobType: JobType = JobType.MAINTENANCE;
 
   @Column({ type: 'text' })
   @IsNotEmpty()
-  @IsString()
-  workDescription!: string
+  jobDescription!: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ length: 100, nullable: true })
   @IsOptional()
-  @IsString()
-  detailedDescription?: string
+  otherJobType?: string;
 
+  // Method Statement
   @Column({ type: 'jsonb', nullable: true })
+  methodStatements: {
+    submitted: boolean;
+    date?: Date;
+    documents?: string[];
+  }[] = [];
+
+  // Requestor Information
+  @Column({ length: 100 })
+  @IsNotEmpty()
+  requestedByName!: string;
+
+  @Column({ length: 100 })
+  @IsNotEmpty()
+  requestedByPosition!: string;
+
+  @Column({ length: 255, nullable: true })
   @IsOptional()
-  @IsObject()
-  location?: any
+  requestedBySignature?: string;
 
-  @Column({ type: 'timestamp' })
-  @IsDate()
-  startDate!: Date
-
-  @Column({ type: 'timestamp' })
-  @IsDate()
-  endDate!: Date
-
+  // Approval Information
   @Column({ type: 'jsonb', nullable: true })
-  @IsOptional()
-  @IsObject()
-  workSchedule?: any
+  approvals: {
+    facilitiesManagement?: {
+      approvedBy?: string;
+      approvedAt?: Date;
+      comments?: string;
+    };
+    retailDeliveryManager?: {
+      approvedBy?: string;
+      approvedAt?: Date;
+      comments?: string;
+    };
+    retailLogisticsTeam?: {
+      approvedBy?: string;
+      approvedAt?: Date;
+      comments?: string;
+    };
+    marketingSpecialtyLeasing?: {
+      approvedBy?: string;
+      approvedAt?: Date;
+      comments?: string;
+    };
+    operations?: {
+      approvedBy?: string;
+      approvedAt?: Date;
+      comments?: string;
+    };
+  } = {};
 
+  // Security Guard Information
   @Column({ type: 'jsonb', nullable: true })
-  @IsOptional()
-  @IsObject()
-  personnel?: any
+  securityChecks: {
+    guardId?: string;
+    guardName?: string;
+    checkInTime?: Date;
+    checkOutTime?: Date;
+    inspectionNotes?: string;
+    photos?: string[];
+    status?: 'pending' | 'in_progress' | 'completed' | 'failed';
+  }[] = [];
 
+  // Compliance Information
   @Column({ type: 'jsonb', nullable: true })
-  @IsOptional()
-  @IsObject()
-  equipment?: any
+  compliance: {
+    methodStatementSubmitted: boolean;
+    riskAssessmentSubmitted: boolean;
+    thirdPartyLiabilityInsurance: boolean;
+    contractorAllRiskInsurance: boolean;
+    safetyInductionCompleted: boolean;
+    hseInspectionCompleted: boolean;
+    documents: {
+      methodStatement?: string;
+      riskAssessment?: string;
+      insuranceCertificate?: string;
+      safetyInductionCertificate?: string;
+    };
+  } = {
+    methodStatementSubmitted: false,
+    riskAssessmentSubmitted: false,
+    thirdPartyLiabilityInsurance: false,
+    contractorAllRiskInsurance: false,
+    safetyInductionCompleted: false,
+    hseInspectionCompleted: false
+  };
 
+  // Work Progress
   @Column({ type: 'jsonb', nullable: true })
-  @IsOptional()
-  @IsObject()
-  safetyMeasures?: any
+  workProgress: {
+    startTime?: Date;
+    endTime?: Date;
+    actualDuration?: number; // in hours
+    completionPercentage?: number;
+    issues?: string[];
+    photos?: string[];
+    notes?: string;
+  } = {};
 
+  // Safety and Security
   @Column({ type: 'jsonb', nullable: true })
-  @IsOptional()
-  @IsObject()
-  riskAssessment?: any
+  safetyMeasures: {
+    ppeRequired: boolean;
+    ppeProvided: boolean;
+    fireExtinguishersAvailable: boolean;
+    emergencyExitsClear: boolean;
+    noiseLevelAcceptable: boolean;
+    dustControlMeasures: boolean;
+    safetyBarriersInstalled: boolean;
+    warningSignsPosted: boolean;
+  } = {
+    ppeRequired: true,
+    ppeProvided: false,
+    fireExtinguishersAvailable: false,
+    emergencyExitsClear: true,
+    noiseLevelAcceptable: true,
+    dustControlMeasures: false,
+    safetyBarriersInstalled: false,
+    warningSignsPosted: false
+  };
 
+  // Notifications
   @Column({ type: 'jsonb', nullable: true })
-  @IsOptional()
-  @IsObject()
-  methodStatement?: any
+  notifications: {
+    sentToTenant: boolean;
+    sentToContractor: boolean;
+    sentToSecurity: boolean;
+    sentToOperations: boolean;
+    notificationHistory: {
+      type: string;
+      sentTo: string[];
+      sentAt: Date;
+      message: string;
+    }[];
+  } = {
+    sentToTenant: false,
+    sentToContractor: false,
+    sentToSecurity: false,
+    sentToOperations: false,
+    notificationHistory: []
+  };
 
+  // Audit Information
   @Column({ type: 'jsonb', nullable: true })
-  @IsOptional()
-  @IsObject()
-  approvals?: any
-
-  @Column({ type: 'jsonb', nullable: true })
-  @IsOptional()
-  @IsObject()
-  inspections?: any
-
-  @Column({ type: 'jsonb', nullable: true })
-  @IsOptional()
-  @IsObject()
-  incidents?: any
-
-  @Column({ type: 'jsonb', nullable: true })
-  @IsOptional()
-  @IsObject()
-  compliance?: any
-
-  @Column({ type: 'jsonb', nullable: true })
-  @IsOptional()
-  @IsObject()
-  costs?: any
-
-  @Column({ type: 'jsonb', nullable: true })
-  @IsOptional()
-  @IsObject()
-  documents?: any
-
-  @Column({ type: 'jsonb', nullable: true })
-  @IsOptional()
-  @IsObject()
-  notifications?: any
-
-  @Column({ type: 'jsonb', nullable: true })
-  @IsOptional()
-  @IsObject()
-  completion?: any
-
-  @Column({ type: 'jsonb', nullable: true })
-  @IsOptional()
-  @IsObject()
-  metadata?: any
+  audit: {
+    createdBy: string;
+    lastModifiedBy?: string;
+    approvalHistory: {
+      action: string;
+      performedBy: string;
+      performedAt: Date;
+      comments?: string;
+    }[];
+  };
 
   @CreateDateColumn()
-  createdAt!: Date
+  createdAt!: Date;
 
   @UpdateDateColumn()
-  updatedAt!: Date
+  updatedAt!: Date;
 
-  // Relationships
-  @ManyToOne(() => Tenant, tenant => tenant.workPermits)
-  @JoinColumn({ name: 'tenant_id' })
-  tenant?: Tenant
-
-  @ManyToOne(() => Mall, mall => mall.workPermits)
-  @JoinColumn({ name: 'mall_id' })
-  mall?: Mall
+  @Column({ type: 'timestamp', nullable: true })
+  deletedAt?: Date;
 
   // Virtual properties
-  get isPending(): boolean {
-    return this.status === WorkPermitStatus.PENDING_APPROVAL
-  }
-
   get isApproved(): boolean {
-    return this.status === WorkPermitStatus.APPROVED
+    return this.status === WorkPermitStatus.APPROVED;
   }
 
-  get isActive(): boolean {
-    return this.status === WorkPermitStatus.ACTIVE
-  }
-
-  get isCompleted(): boolean {
-    return this.status === WorkPermitStatus.COMPLETED
+  get isPending(): boolean {
+    return this.status === WorkPermitStatus.PENDING;
   }
 
   get isRejected(): boolean {
-    return this.status === WorkPermitStatus.REJECTED
+    return this.status === WorkPermitStatus.REJECTED;
   }
 
-  get isCancelled(): boolean {
-    return this.status === WorkPermitStatus.CANCELLED
+  get isInProgress(): boolean {
+    return this.status === WorkPermitStatus.IN_PROGRESS;
   }
 
-  get isHighRisk(): boolean {
-    return this.riskLevel === RiskLevel.HIGH || this.riskLevel === RiskLevel.CRITICAL
+  get isCompleted(): boolean {
+    return this.status === WorkPermitStatus.COMPLETED;
   }
 
-  get isHotWork(): boolean {
-    return this.type === WorkPermitType.HOT_WORK
+  get isCompliant(): boolean {
+    return (
+      this.compliance.methodStatementSubmitted &&
+      this.compliance.riskAssessmentSubmitted &&
+      this.compliance.thirdPartyLiabilityInsurance &&
+      this.compliance.contractorAllRiskInsurance &&
+      this.compliance.safetyInductionCompleted &&
+      this.compliance.hseInspectionCompleted
+    );
   }
 
-  get isHighLevel(): boolean {
-    return this.type === WorkPermitType.HIGH_LEVEL
+  get requiresHotWorkPermit(): boolean {
+    return this.permitType === WorkPermitType.HOT_WORK;
   }
 
-  get duration(): number {
-    const start = new Date(this.startDate)
-    const end = new Date(this.endDate)
-    return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))
+  get isExpired(): boolean {
+    const now = new Date();
+    return now > this.jobDateTo;
   }
 
-  get isOverdue(): boolean {
-    return this.endDate < new Date() && this.status !== WorkPermitStatus.COMPLETED
-  }
-
-  get isExpiringSoon(): boolean {
-    const now = new Date()
-    const end = new Date(this.endDate)
-    const daysUntilExpiry = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-    return daysUntilExpiry <= 3 && daysUntilExpiry > 0
+  get isActive(): boolean {
+    const now = new Date();
+    return now >= this.jobDateFrom && now <= this.jobDateTo;
   }
 
   // Lifecycle hooks
   @BeforeInsert()
   generatePermitNumber(): void {
     if (!this.permitNumber) {
-      const year = new Date().getFullYear()
-      const random = uuidv4().substring(0, 6).toUpperCase()
-      this.permitNumber = `WP-${year}-${random}`
+      const prefix = this.permitType === WorkPermitType.HOT_WORK ? 'HWP' : 'GWP';
+      this.permitNumber = `${prefix}-${uuidv4().substring(0, 8).toUpperCase()}`;
     }
   }
 
   // Methods
-  approve(approvedBy: string, comments?: string): void {
-    this.status = WorkPermitStatus.APPROVED
-    if (!this.approvals) {
-      this.approvals = []
+  approve(approvedBy: string, department: string, comments?: string): void {
+    this.status = WorkPermitStatus.APPROVED;
+    if (!this.approvals[department as keyof typeof this.approvals]) {
+      this.approvals[department as keyof typeof this.approvals] = {};
     }
-    this.approvals.push({
-      role: 'Approver',
-      name: approvedBy,
-      date: new Date().toISOString(),
-      status: 'Approved',
+    this.approvals[department as keyof typeof this.approvals] = {
+      approvedBy,
+      approvedAt: new Date(),
       comments
-    })
+    };
   }
 
   reject(rejectedBy: string, reason: string): void {
-    this.status = WorkPermitStatus.REJECTED
-    if (!this.approvals) {
-      this.approvals = []
+    this.status = WorkPermitStatus.REJECTED;
+    if (!this.audit) {
+      this.audit = { createdBy: '', approvalHistory: [] };
     }
-    this.approvals.push({
-      role: 'Rejector',
-      name: rejectedBy,
-      date: new Date().toISOString(),
-      status: 'Rejected',
-      reason
-    })
+    this.audit.approvalHistory.push({
+      action: 'REJECTED',
+      performedBy: rejectedBy,
+      performedAt: new Date(),
+      comments: reason
+    });
   }
 
-  activate(activatedBy: string): void {
-    this.status = WorkPermitStatus.ACTIVE
-    if (!this.approvals) {
-      this.approvals = []
+  startWork(startedBy: string): void {
+    this.status = WorkPermitStatus.IN_PROGRESS;
+    this.workProgress.startTime = new Date();
+    if (!this.audit) {
+      this.audit = { createdBy: '', approvalHistory: [] };
     }
-    this.approvals.push({
-      role: 'Activator',
-      name: activatedBy,
-      date: new Date().toISOString(),
-      status: 'Activated'
-    })
+    this.audit.approvalHistory.push({
+      action: 'WORK_STARTED',
+      performedBy: startedBy,
+      performedAt: new Date()
+    });
   }
 
-  complete(completedBy: string, completionNotes?: string): void {
-    this.status = WorkPermitStatus.COMPLETED
-    this.completion = {
-      completedBy,
-      completedAt: new Date().toISOString(),
-      notes: completionNotes
+  completeWork(completedBy: string, notes?: string): void {
+    this.status = WorkPermitStatus.COMPLETED;
+    this.workProgress.endTime = new Date();
+    this.workProgress.completionPercentage = 100;
+    if (notes) {
+      this.workProgress.notes = notes;
     }
-  }
-
-  cancel(cancelledBy: string, reason: string): void {
-    this.status = WorkPermitStatus.CANCELLED
-    if (!this.approvals) {
-      this.approvals = []
+    if (!this.audit) {
+      this.audit = { createdBy: '', approvalHistory: [] };
     }
-    this.approvals.push({
-      role: 'Canceller',
-      name: cancelledBy,
-      date: new Date().toISOString(),
-      status: 'Cancelled',
-      reason
-    })
+    this.audit.approvalHistory.push({
+      action: 'WORK_COMPLETED',
+      performedBy: completedBy,
+      performedAt: new Date(),
+      comments: notes
+    });
   }
 
-  addInspection(inspection: any): void {
-    if (!this.inspections) {
-      this.inspections = []
-    }
-    this.inspections.push({
-      ...inspection,
-      date: new Date().toISOString()
-    })
+  addSecurityCheck(guardId: string, guardName: string, notes?: string, photos?: string[]): void {
+    this.securityChecks.push({
+      guardId,
+      guardName,
+      checkInTime: new Date(),
+      inspectionNotes: notes,
+      photos,
+      status: 'completed'
+    });
   }
 
-  addIncident(incident: any): void {
-    if (!this.incidents) {
-      this.incidents = []
-    }
-    this.incidents.push({
-      ...incident,
-      date: new Date().toISOString()
-    })
+  updateCompliance(type: keyof typeof this.compliance, value: any): void {
+    this.compliance[type] = value;
   }
 
-  updateRiskAssessment(assessment: any): void {
-    this.riskAssessment = { ...this.riskAssessment, ...assessment }
+  addNotification(type: string, sentTo: string[], message: string): void {
+    this.notifications.notificationHistory.push({
+      type,
+      sentTo,
+      sentAt: new Date(),
+      message
+    });
   }
-
-  updateMethodStatement(statement: any): void {
-    this.methodStatement = { ...this.methodStatement, ...statement }
-  }
-
-  updateSafetyMeasures(measures: string[]): void {
-    this.safetyMeasures = measures
-  }
-
-  updatePersonnel(personnel: any[]): void {
-    this.personnel = personnel
-  }
-
-  updateEquipment(equipment: string[]): void {
-    this.equipment = equipment
-  }
-
-  updateWorkSchedule(schedule: any): void {
-    this.workSchedule = schedule
-  }
-
-  updateCosts(costs: any): void {
-    this.costs = { ...this.costs, ...costs }
-  }
-
-  addDocument(document: any): void {
-    if (!this.documents) {
-      this.documents = []
-    }
-    this.documents.push({
-      ...document,
-      uploadedAt: new Date().toISOString()
-    })
-  }
-
-  addNotification(notification: any): void {
-    if (!this.notifications) {
-      this.notifications = []
-    }
-    this.notifications.push({
-      ...notification,
-      sentAt: new Date().toISOString()
-    })
-  }
-
-  updateCompliance(compliance: any): void {
-    this.compliance = { ...this.compliance, ...compliance }
-  }
-
-  addMetadata(key: string, value: any): void {
-    if (!this.metadata) {
-      this.metadata = {}
-    }
-    this.metadata[key] = value
-  }
-
-  removeMetadata(key: string): void {
-    if (this.metadata && this.metadata[key]) {
-      delete this.metadata[key]
-    }
-  }
-} 
+}

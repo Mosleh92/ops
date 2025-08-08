@@ -9,7 +9,6 @@ import { redis } from '@/config/redis';
 import { AuditLog } from '@/models/AuditLog';
 import { IntegrationConfig } from '@/models/IntegrationConfig';
 import { aiAnalyticsService } from '@/services/AIAnalyticsService';
-import { computerVisionService } from '@/services/ComputerVisionService';
 import { iotService } from '@/services/IoTService';
 import { logger } from '@/utils/logger';
 import compression from 'compression';
@@ -30,7 +29,6 @@ import aiRoutes from '@/routes/ai';
 import auditLogRouter from '@/routes/audit-logs';
 import authRoutes from '@/routes/auth';
 import cleaningRoutes from '@/routes/cleaning';
-import computerVisionRoutes from '@/routes/computer-vision';
 import dashboardRoutes from '@/routes/dashboard';
 import integrationsRouter from '@/routes/integrations';
 import iotRoutes from '@/routes/iot';
@@ -87,10 +85,6 @@ class MallOSApplication {
       // Initialize AI Analytics Service
       await aiAnalyticsService.initialize();
       logger.info('✅ AI Analytics Service initialized');
-
-      // Initialize Computer Vision Service
-      await computerVisionService.initialize();
-      logger.info('✅ Computer Vision Service initialized');
 
       // Setup middleware
       this.setupMiddleware();
@@ -276,7 +270,6 @@ class MallOSApplication {
     // IoT & AI routes
     this.app.use('/api/iot', iotRoutes);
     this.app.use('/api/ai', aiRoutes);
-    this.app.use('/api/computer-vision', computerVisionRoutes);
 
     // --- Register enhanced integration router with full security stack ---
     this.app.use('/api/integrations', integrationsRouter);
@@ -303,7 +296,6 @@ class MallOSApplication {
           tasks: '/api/tasks',
           iot: '/api/iot',
           ai: '/api/ai',
-          computerVision: '/api/computer-vision',
           integrations: '/api/integrations',
           auditLogs: '/api/audit-logs',
           cleaning: '/api/cleaning'
@@ -406,17 +398,6 @@ class MallOSApplication {
       });
     });
 
-    // Forward Computer Vision events to Socket.IO
-    computerVisionService.on('securityAlert', (alert) => {
-      this.io.to(`cv-${alert.cameraId}`).emit('cv-alert', {
-        type: 'security-alert',
-        data: alert
-      });
-      this.io.to(`mall-${alert.mallId}`).emit('security-update', {
-        type: 'security-alert',
-        data: alert
-      });
-    });
   }
 
   /**
@@ -457,7 +438,6 @@ class MallOSApplication {
         // Cleanup services
         await iotService.cleanup();
         await aiAnalyticsService.cleanup();
-        await computerVisionService.cleanup();
 
         // Close database connections
         await databaseManager.close();
@@ -505,7 +485,6 @@ class MallOSApplication {
       redis: redis.status,
       iot: iotService.getStatistics(),
       ai: aiAnalyticsService.getStatistics(),
-      computerVision: computerVisionService.getStatistics(),
       uptime: process.uptime(),
       memory: process.memoryUsage(),
       version: config.app.version

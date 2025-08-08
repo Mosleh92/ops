@@ -43,6 +43,7 @@ import { loadPlugins } from '@/plugins';
 // Import middleware
 import { authMiddleware } from '@/middleware/auth';
 import { rateLimiter } from '@/middleware/rateLimiter';
+import { correlationIdMiddleware } from '@/middleware/correlationId';
 
 class MallOSApplication {
   private app: express.Application;
@@ -143,6 +144,9 @@ class MallOSApplication {
 
     // Compression
     this.app.use(compression());
+
+    // Correlation IDs for request tracing
+    this.app.use(correlationIdMiddleware);
 
     // Logging
     this.app.use(morgan('combined', {

@@ -5,6 +5,7 @@
 
 import winston from 'winston';
 import { config } from '@/config/config';
+import { asyncLocalStorage } from '@/middleware/correlationId';
 
 // Custom log format
 const logFormat = winston.format.combine(
@@ -14,7 +15,9 @@ const logFormat = winston.format.combine(
   winston.format.errors({ stack: true }),
   winston.format.json(),
   winston.format.printf(({ timestamp, level, message, stack, ...meta }) => {
-    let log = `${timestamp} [${level.toUpperCase()}]: ${message}`;
+    const store = asyncLocalStorage.getStore();
+    const correlationId = store?.correlationId;
+    let log = `${timestamp} [${level.toUpperCase()}]${correlationId ? ` [${correlationId}]` : ''}: ${message}`;
     
     if (stack) {
       log += `\n${stack}`;
@@ -35,7 +38,9 @@ const consoleFormat = winston.format.combine(
     format: 'YYYY-MM-DD HH:mm:ss'
   }),
   winston.format.printf(({ timestamp, level, message, stack, ...meta }) => {
-    let log = `${timestamp} [${level}]: ${message}`;
+    const store = asyncLocalStorage.getStore();
+    const correlationId = store?.correlationId;
+    let log = `${timestamp} [${level}]${correlationId ? ` [${correlationId}]` : ''}: ${message}`;
     
     if (stack) {
       log += `\n${stack}`;

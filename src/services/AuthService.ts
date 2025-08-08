@@ -90,8 +90,13 @@ export class AuthService {
    * Verify MFA code
    */
   static async verifyMfaCode(userId: string, code: string): Promise<boolean> {
-    const stored = await redis.get(`mfa:${userId}`);
-    return stored === code;
+    const key = `mfa:${userId}`;
+    const stored = await redis.get(key);
+    if (stored === code) {
+      await redis.del(key);
+      return true;
+    }
+    return false;
   }
 
   /**

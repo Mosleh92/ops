@@ -23,7 +23,7 @@ services:
           name: mallos-db
           property: connectionString
         key: DATABASE_URL
-      # Uncomment and set values for additional services
+      # Optional additional variables
       - key: REDIS_URL
         sync: false
       - key: JWT_SECRET
@@ -32,9 +32,6 @@ services:
   - type: web
     name: mallos-frontend
     env: static
- lgzgj6-codex/prepare-system-for-render-deployment
-    region: oregon
- main
     plan: free
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: frontend/dist

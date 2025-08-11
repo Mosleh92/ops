@@ -1,32 +1,29 @@
 import Stripe from 'stripe';
 import { logger } from '../../utils/logger';
-// import { AuditLog } from '../../models/AuditLog'; // Uncomment if needed
-// NOTE: For type safety, ensure you have installed @types/node and @types/stripe as dev dependencies.
-// import type { Buffer } from 'node:buffer'; // Uncomment if needed for strict TS
-// import process from 'process'; // Not needed in Node.js, but for TS type safety
 
-const STRIPE_API_KEY = process.env.STRIPE_API_KEY || '';
-const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
+const STRIPE_API_KEY = process.env['STRIPE_API_KEY'] || '';
+const STRIPE_WEBHOOK_SECRET = process.env['STRIPE_WEBHOOK_SECRET'] || '';
 
 export class StripeService {
   private stripe: Stripe;
   private logger: typeof logger;
 
   constructor() {
-    this.stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2023-10-16' });
+    this.stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2023-08-16' });
     this.logger = logger;
   }
 
   // Create a payment intent for one-time payments
   async createPaymentIntent({ amount, currency, customerId, metadata }: { amount: number; currency: string; customerId?: string; metadata?: any; }) {
     try {
-      const paymentIntent = await this.stripe.paymentIntents.create({
+      const params: Stripe.PaymentIntentCreateParams = {
         amount,
         currency,
-        customer: customerId,
-        metadata,
         automatic_payment_methods: { enabled: true },
-      });
+        metadata,
+      };
+      if (customerId) params.customer = customerId;
+      const paymentIntent = await this.stripe.paymentIntents.create(params);
       this.logger.info('Stripe payment intent created', { paymentIntent });
       // AuditLog.log(...)
       return paymentIntent;
@@ -39,13 +36,14 @@ export class StripeService {
   // Create a subscription for recurring payments
   async createSubscription({ customerId, priceId, metadata }: { customerId: string; priceId: string; metadata?: any; }) {
     try {
-      const subscription = await this.stripe.subscriptions.create({
+      const params: Stripe.SubscriptionCreateParams = {
         customer: customerId,
         items: [{ price: priceId }],
-        metadata,
         payment_behavior: 'default_incomplete',
         expand: ['latest_invoice.payment_intent'],
-      });
+      };
+      if (metadata) params.metadata = metadata;
+      const subscription = await this.stripe.subscriptions.create(params);
       this.logger.info('Stripe subscription created', { subscription });
       return subscription;
     } catch (error) {
@@ -69,10 +67,9 @@ export class StripeService {
   // Refund a payment
   async refundPayment(paymentIntentId: string, amount?: number) {
     try {
-      const refund = await this.stripe.refunds.create({
-        payment_intent: paymentIntentId,
-        amount,
-      });
+      const params: Stripe.RefundCreateParams = { payment_intent: paymentIntentId };
+      if (amount != null) params.amount = amount;
+      const refund = await this.stripe.refunds.create(params);
       this.logger.info('Stripe refund created', { refund });
       return refund;
     } catch (error) {
@@ -110,7 +107,9 @@ export class StripeService {
     try {
       // Try to find existing customer by email (Stripe does not support direct search, so this is a placeholder)
       // In production, store Stripe customerId in your DB for lookup
-      const customer = await this.stripe.customers.create({ email, name, metadata });
+      const params: Stripe.CustomerCreateParams = { email, metadata };
+      if (name) params.name = name;
+      const customer = await this.stripe.customers.create(params);
       this.logger.info('Stripe customer upserted', { customer });
       return customer;
     } catch (error) {

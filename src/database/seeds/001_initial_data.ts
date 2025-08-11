@@ -2,7 +2,7 @@ import { DataSource } from 'typeorm'
 import { User, UserRole, UserStatus, UserType } from '@/models/User'
 import { Mall, MallType, MallClass, MallStatus } from '@/models/Mall'
 import { Tenant, TenantType, TenantCategory, TenantStatus } from '@/models/Tenant'
-import { WorkPermit, WorkPermitType, WorkPermitStatus, RiskLevel, WorkCategory } from '@/models/WorkPermit'
+import { WorkPermit, WorkPermitType, WorkPermitStatus } from '@/models/WorkPermit'
 import bcrypt from 'bcryptjs'
 import { config } from '@/config/config'
 
@@ -390,8 +390,8 @@ export class InitialData1700000000001 {
         mallId: mall.id,
         type: WorkPermitType.GENERAL,
         status: WorkPermitStatus.APPROVED,
-        riskLevel: RiskLevel.LOW,
-        category: WorkCategory.DECORATION,
+        riskLevel: 'LOW',
+        category: 'DECORATION',
         workDescription: 'Store renovation and decoration work',
         detailedDescription: 'Complete interior renovation including painting, flooring, and fixture installation',
         location: {
@@ -464,8 +464,8 @@ export class InitialData1700000000001 {
         mallId: mall.id,
         type: WorkPermitType.HOT_WORK,
         status: WorkPermitStatus.PENDING_APPROVAL,
-        riskLevel: RiskLevel.HIGH,
-        category: WorkCategory.ELECTRICAL,
+        riskLevel: 'HIGH',
+        category: 'ELECTRICAL',
         workDescription: 'Electrical system upgrade and maintenance',
         detailedDescription: 'Upgrade electrical panel and install new lighting system',
         location: {
@@ -520,7 +520,7 @@ export class InitialData1700000000001 {
     ]
 
     for (const permitData of workPermits) {
-      const workPermit = workPermitRepository.create(permitData)
+      const workPermit = workPermitRepository.create(permitData as any)
       await workPermitRepository.save(workPermit)
     }
 

@@ -1,6 +1,21 @@
 import crypto from 'crypto';
-import axios, { AxiosRequestConfig } from 'axios';
-import { IntegrationConfig, IntegrationLog } from '../../models/IntegrationConfig';
+import axios from 'axios';
+
+export interface IntegrationConfig {
+  name: string;
+  accessToken?: string;
+  refreshToken?: string;
+  tokenExpiry?: Date;
+  status?: string;
+  [key: string]: any;
+}
+
+export interface IntegrationLog {
+  timestamp: Date;
+  level: 'info' | 'warn' | 'error';
+  message: string;
+  details?: any;
+}
 
 export abstract class IntegrationService {
   protected config: IntegrationConfig;
@@ -12,7 +27,7 @@ export abstract class IntegrationService {
   }
 
   // --- OAUTH2 AUTHENTICATION ---
-  async authenticateOAuth2(grantType: 'client_credentials' | 'authorization_code', options: {
+  async authenticateOAuth2(grantType: 'client_credentials' | 'authorization_code' | 'refresh_token', options: {
     tokenUrl: string;
     clientId: string;
     clientSecret: string;
@@ -63,14 +78,20 @@ export abstract class IntegrationService {
   async refreshTokenIfNeeded(): Promise<void> {
     if (!this.config.tokenExpiry || new Date() > this.config.tokenExpiry) {
       // Refresh token logic (assumes refresh token is present)
-      const creds = this.getCredentials();
-      if (!this.config.refreshToken) throw new Error('No refresh token available');
-      const tokenData = await this.authenticateOAuth2('refresh_token', {
-        tokenUrl: creds.tokenUrl,
-        clientId: creds.clientId,
-        clientSecret: creds.clientSecret,
-        refreshToken: this.config.refreshToken,
-      });
+    const creds = this.getCredentials();
+    const tokenUrl = creds['tokenUrl'];
+    const clientId = creds['clientId'];
+    const clientSecret = creds['clientSecret'];
+    if (!tokenUrl || !clientId || !clientSecret) {
+      throw new Error('Missing OAuth2 credentials');
+    }
+    if (!this.config.refreshToken) throw new Error('No refresh token available');
+    const tokenData = await this.authenticateOAuth2('refresh_token', {
+      tokenUrl,
+      clientId,
+      clientSecret,
+      refreshToken: this.config.refreshToken,
+    });
       this.config.accessToken = tokenData.accessToken;
       this.config.refreshToken = tokenData.refreshToken;
       this.config.tokenExpiry = new Date(Date.now() + (tokenData.expiresIn || 3600) * 1000);
@@ -107,7 +128,7 @@ export abstract class IntegrationService {
   }
   getApiKey(): string | undefined {
     const creds = this.getCredentials();
-    return creds.apiKey ? this.decryptCredential(creds.apiKey) : undefined;
+    return creds['apiKey'] ? this.decryptCredential(creds['apiKey']) : undefined;
   }
   rotateApiKey(newKey: string) {
     this.setApiKey(newKey);

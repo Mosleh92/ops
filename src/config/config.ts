@@ -3,7 +3,7 @@
  * Central configuration management for the enterprise platform
  */
 
-import { cleanEnv, str, num, bool, url, makeValidator } from 'envalid';
+import { cleanEnv, str, num, bool, makeValidator } from '@/utils/envalid';
 
 // Custom validator for comma-separated lists
 const csv = makeValidator((input: string) => input.split(','));
@@ -156,6 +156,7 @@ export interface Config {
     environment: string;
     port: number;
     apiVersion: string;
+    corsOrigin?: string;
   };
 
   // Database
@@ -379,6 +380,7 @@ export const config: Config = {
     environment: process.env.NODE_ENV || 'development',
     port: parseInt(process.env.PORT || '3001', 10),
     apiVersion: process.env.API_VERSION || 'v1',
+    corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:3000',
   },
 
   database: {

@@ -86,9 +86,9 @@ export const env = cleanEnv(process.env, {
   AZURE_IOT_HUB_CONNECTION_STRING: str({ default: '' }),
   AZURE_IOT_HUB_HOSTNAME: str({ default: '' }),
 
-  MQTT_BROKER_URL: str({ default: 'mqtt://localhost:1883' }),
-  MQTT_USERNAME: str({ default: 'mallos_iot' }),
-  MQTT_PASSWORD: str({ default: 'mallos_iot_password' }),
+  MQTT_BROKER_URL: str(),
+  MQTT_USERNAME: str(),
+  MQTT_PASSWORD: str(),
 
   SENTRY_DSN: str({ default: '' }),
   SENTRY_ENVIRONMENT: str({ default: 'development' }),
@@ -109,9 +109,9 @@ export const env = cleanEnv(process.env, {
   DOCUSIGN_USER_ID: str({ default: '' }),
   DOCUSIGN_PRIVATE_KEY_PATH: str({ default: './certs/docusign-private-key.pem' }),
 
-  RABBITMQ_URL: str({ default: 'amqp://localhost:5672' }),
-  RABBITMQ_USERNAME: str({ default: 'guest' }),
-  RABBITMQ_PASSWORD: str({ default: 'guest' }),
+  RABBITMQ_URL: str(),
+  RABBITMQ_USERNAME: str(),
+  RABBITMQ_PASSWORD: str(),
 
   KAFKA_BROKERS: str({ default: 'localhost:9092' }),
   KAFKA_CLIENT_ID: str({ default: 'mallos-enterprise' }),
@@ -486,9 +486,9 @@ export const config: Config = {
       iotHubHostname: process.env.AZURE_IOT_HUB_HOSTNAME || '',
     },
     mqtt: {
-      brokerUrl: process.env.MQTT_BROKER_URL || 'mqtt://localhost:1883',
-      username: process.env.MQTT_USERNAME || 'mallos_iot',
-      password: process.env.MQTT_PASSWORD || 'mallos_iot_password',
+      brokerUrl: env.MQTT_BROKER_URL,
+      username: env.MQTT_USERNAME,
+      password: env.MQTT_PASSWORD,
     },
   },
 
@@ -527,9 +527,9 @@ export const config: Config = {
 
   messageQueue: {
     rabbitmq: {
-      url: process.env.RABBITMQ_URL || 'amqp://localhost:5672',
-      username: process.env.RABBITMQ_USERNAME || 'guest',
-      password: process.env.RABBITMQ_PASSWORD || 'guest',
+      url: env.RABBITMQ_URL,
+      username: env.RABBITMQ_USERNAME,
+      password: env.RABBITMQ_PASSWORD,
     },
     kafka: {
       brokers: process.env.KAFKA_BROKERS || 'localhost:9092',

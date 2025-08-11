@@ -105,6 +105,13 @@ cd ..
 ```bash
 cp env.example .env
 # تعديل ملف .env بالمعلومات المطلوبة
+# تأكد من ضبط المتغيرات التالية:
+# MQTT_BROKER_URL
+# MQTT_USERNAME
+# MQTT_PASSWORD
+# RABBITMQ_URL
+# RABBITMQ_USERNAME
+# RABBITMQ_PASSWORD
 ```
 
 4. **إعداد قاعدة البيانات**

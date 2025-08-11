@@ -1,6 +1,13 @@
 {
   "name": "ops",
   "private": true,
+ codex/fix-render-service-health-check-and-lockfile
+  "engines": {
+    "node": ">=18 <21",
+    "npm": ">=8.0.0"
+  },
+=======
+ main
   "scripts": {
     "build": "tsc -p tsconfig.json || echo 'no ts build'",
     "start": "node dist/server.js || node dist/index.js",
@@ -133,10 +140,6 @@
     "lint-staged": "^13.2.3",
     "knex": "^2.4.2",
     "sqlite3": "^5.1.6"
-  },
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=8.0.0"
   },
   "repository": {
     "type": "git",

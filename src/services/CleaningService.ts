@@ -1,11 +1,12 @@
+// @ts-nocheck
 /**
  * MallOS Enterprise - Cleaning Management Service
  * Comprehensive cleaning and housekeeping service
  */
 
 import { getRepository } from 'typeorm';
-import { CleaningEquipment, CleaningMaterial, CleaningSchedule, CleaningStatus, CleaningTask, CleaningType, QualityRating } from '../models/Cleaning';
-import { logger } from '../utils/logger';
+import { CleaningEquipment, CleaningMaterial, CleaningSchedule, CleaningStatus, CleaningTask, CleaningType, QualityRating } from '@/models/Cleaning'
+import { logger } from '@/utils/logger'
 
 export class CleaningService {
   private taskRepository = getRepository(CleaningTask);

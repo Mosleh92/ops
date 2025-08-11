@@ -3,15 +3,15 @@
  * TensorFlow.js integration with ML models for predictive analytics
  */
 
-import * as tf from '@tensorflow/tfjs-node';
-import { EventEmitter } from 'events';
-import { v4 as uuidv4 } from 'uuid';
-import { logger } from '@/utils/logger';
-import { database } from '@/config/database';
-import { AIModel, ModelType, ModelStatus, ModelFramework } from '@/models/AIModel';
-import { AIPrediction, PredictionType, PredictionStatus } from '@/models/AIPrediction';
-import { SensorData, SensorType } from '@/models/SensorData';
-import { redis } from '@/config/redis';
+import * as tf from '@tensorflow/tfjs-node'
+import { EventEmitter } from 'events'
+import { v4 as uuid } from 'uuid'
+import { logger } from '@/utils/logger'
+import { database } from '@/config/database'
+import { AIModel, ModelStatus } from '@/models/AIModel'
+import { AIPrediction, PredictionType, PredictionStatus } from '@/models/AIPrediction'
+import { SensorData, SensorType } from '@/models/SensorData'
+import { MoreThanOrEqual } from 'typeorm'
 
 export interface ModelTrainingConfig {
   modelId: string;
@@ -40,6 +40,9 @@ export interface ModelMetrics {
   mse?: number;
   mae?: number;
 }
+
+const toNum = (x: number | tf.Tensor | undefined) =>
+  typeof x === 'number' ? x : x ? x.dataSync()[0] : 0
 
 export class AIAnalyticsService extends EventEmitter {
   private static instance: AIAnalyticsService;
@@ -150,7 +153,7 @@ export class AIAnalyticsService extends EventEmitter {
         .update(config.modelId, { status: ModelStatus.TRAINING });
 
       // Create training job
-      const jobId = uuidv4();
+      const jobId = uuid();
       this.trainingJobs.set(jobId, { modelId: config.modelId, status: 'training' });
 
       // Start training in background
@@ -205,11 +208,11 @@ export class AIAnalyticsService extends EventEmitter {
           size: 0, // Calculate actual size
           format: 'tensorflowjs'
         },
-        metrics: {
-          accuracy: history.history.acc ? history.history.acc[history.history.acc.length - 1] : 0,
-          mse: history.history.loss ? history.history.loss[history.history.loss.length - 1] : 0
-        }
-      });
+          metrics: {
+            accuracy: toNum(history.history.acc?.[history.history.acc.length - 1]),
+            mse: toNum(history.history.loss?.[history.history.loss.length - 1])
+          }
+        });
 
       // Store model in memory
       this.models.set(config.modelId, model);
@@ -221,15 +224,16 @@ export class AIAnalyticsService extends EventEmitter {
       this.emit('modelTrained', { modelId: config.modelId, metrics: history.history });
 
     } catch (error) {
-      logger.error('❌ Model training failed:', error);
-      
+      const msg = error instanceof Error ? error.message : String(error)
+      logger.error('❌ Model training failed:', msg)
+
       // Update model status to error
       await database.getRepository(AIModel).update(config.modelId, {
         status: ModelStatus.ERROR
-      });
+      })
 
       // Update job status
-      this.trainingJobs.set(jobId, { modelId: config.modelId, status: 'failed', error: error.message });
+      this.trainingJobs.set(jobId, { modelId: config.modelId, status: 'failed', error: msg })
     }
   }
 
@@ -247,12 +251,12 @@ export class AIAnalyticsService extends EventEmitter {
     }));
 
     // Hidden layers
-    model.add(tf.layers.dropout(0.2));
+    model.add(tf.layers.dropout({ rate: 0.2 }));
     model.add(tf.layers.dense({
       units: 32,
       activation: 'relu'
     }));
-    model.add(tf.layers.dropout(0.2));
+    model.add(tf.layers.dropout({ rate: 0.2 }));
     model.add(tf.layers.dense({
       units: 16,
       activation: 'relu'
@@ -292,7 +296,7 @@ export class AIAnalyticsService extends EventEmitter {
   /**
    * Get training data from database
    */
-  private async getTrainingData(dataSource: string, features: string[], target: string): Promise<{
+  private async getTrainingData(_dataSource: string, _features: string[], _target: string): Promise<{
     inputs: number[][];
     targets: number[];
   }> {
@@ -358,14 +362,14 @@ export class AIAnalyticsService extends EventEmitter {
       const predictionValue = await predictionTensor.data();
 
       // Update prediction with results
-      await database.getRepository(AIPrediction).update(savedPrediction.id, {
-        status: PredictionStatus.COMPLETED,
-        output: {
-          prediction: predictionValue[0],
-          confidence: 0.85, // Calculate actual confidence
-          probability: 0.85
-        }
-      });
+        await database.getRepository(AIPrediction).update(savedPrediction.id, {
+          status: PredictionStatus.COMPLETED,
+          output: {
+            prediction: Number(predictionValue[0] ?? 0),
+            confidence: 0.85, // Calculate actual confidence
+            probability: 0.85
+          }
+        });
 
       // Clean up tensors
       inputTensor.dispose();
@@ -400,7 +404,7 @@ export class AIAnalyticsService extends EventEmitter {
           modelId: 'revenue-forecast-model', // Replace with actual model ID
           mallId,
           type: PredictionType.REVENUE_FORECAST,
-          input: features[i],
+          input: features[i]!,
           predictionDate: new Date(Date.now() + i * 24 * 60 * 60 * 1000)
         });
         
@@ -417,7 +421,7 @@ export class AIAnalyticsService extends EventEmitter {
   /**
    * Get historical revenue data
    */
-  private async getHistoricalRevenueData(mallId: string): Promise<any[]> {
+    private async getHistoricalRevenueData(_mallId: string): Promise<any[]> {
     try {
       // This would integrate with your financial data
       // For now, return mock data
@@ -431,7 +435,7 @@ export class AIAnalyticsService extends EventEmitter {
   /**
    * Prepare forecasting features
    */
-  private prepareForecastingFeatures(historicalData: any[], days: number): Record<string, any>[] {
+    private prepareForecastingFeatures(_historicalData: any[], days: number): Record<string, any>[] {
     // Implement feature engineering for time series forecasting
     const features: Record<string, any>[] = [];
     
@@ -498,7 +502,7 @@ export class AIAnalyticsService extends EventEmitter {
   /**
    * Get spending data
    */
-  private async getSpendingData(mallId: string): Promise<any[]> {
+  private async getSpendingData(_mallId: string): Promise<any[]> {
     try {
       // This would integrate with your financial system
       return [];
@@ -511,7 +515,7 @@ export class AIAnalyticsService extends EventEmitter {
   /**
    * Get dwell time data
    */
-  private async getDwellTimeData(mallId: string): Promise<any[]> {
+  private async getDwellTimeData(_mallId: string): Promise<any[]> {
     try {
       // This would integrate with your occupancy sensors
       return [];
@@ -524,7 +528,7 @@ export class AIAnalyticsService extends EventEmitter {
   /**
    * Cluster customer behavior
    */
-  private async clusterCustomerBehavior(footTraffic: any[], spending: any[], dwellTime: any[]): Promise<any[]> {
+  private async clusterCustomerBehavior(_footTraffic: any[], _spending: any[], _dwellTime: any[]): Promise<any[]> {
     try {
       // Implement K-means clustering or other clustering algorithms
       // This is a simplified implementation
@@ -557,7 +561,7 @@ export class AIAnalyticsService extends EventEmitter {
   /**
    * Generate behavior insights
    */
-  private generateBehaviorInsights(clusters: any[]): string[] {
+  private generateBehaviorInsights(_clusters: any[]): string[] {
     return [
       'High-value customers prefer weekend visits',
       'Regular customers show consistent spending patterns',
@@ -568,7 +572,7 @@ export class AIAnalyticsService extends EventEmitter {
   /**
    * Generate behavior recommendations
    */
-  private generateBehaviorRecommendations(clusters: any[]): string[] {
+  private generateBehaviorRecommendations(_clusters: any[]): string[] {
     return [
       'Implement VIP programs for high-value customers',
       'Create loyalty programs for regular customers',
@@ -748,11 +752,9 @@ export class AIAnalyticsService extends EventEmitter {
       const totalPredictions = await database.getRepository(AIPrediction).count();
       const todayPredictions = await database.getRepository(AIPrediction).count({
         where: {
-          timestamp: {
-            $gte: new Date(new Date().setHours(0, 0, 0, 0))
-          }
+          timestamp: MoreThanOrEqual(new Date(new Date().setHours(0, 0, 0, 0)))
         }
-      });
+      })
 
       return {
         totalModels,
@@ -789,4 +791,4 @@ export class AIAnalyticsService extends EventEmitter {
 }
 
 // Export singleton instance
-export const aiAnalyticsService = AIAnalyticsService.getInstance(); 
+export const aiAnalyticsService = AIAnalyticsService.getInstance();

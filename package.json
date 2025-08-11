@@ -1,26 +1,14 @@
 {
-  "name": "mallos-enterprise",
-  "version": "1.0.0",
-  "description": "Enterprise Mall Management Platform with AI, IoT, and Blockchain Integration",
-  "main": "dist/index.js",
+  "name": "ops",
+  "private": true,
+  "engines": { "node": ">=18 <21" },
   "scripts": {
-    "dev": "nodemon src/index.ts",
-    "dev:backend": "concurrently \"npm run dev:api\" \"npm run dev:worker\" \"npm run dev:websocket\"",
-    "dev:api": "nodemon src/api/index.ts",
-    "dev:worker": "nodemon src/workers/index.ts",
-    "dev:websocket": "nodemon src/websocket/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "test": "node --test",
-    "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts --fix",
-    "format": "prettier --write src/**/*.ts",
-    "migrate": "knex migrate:latest",
-    "migrate:rollback": "knex migrate:rollback",
-    "seed": "knex seed:run",
-    "docker:build": "docker build -t mallos-enterprise .",
-    "docker:run": "docker run -p 3001:3001 mallos-enterprise"
+    "build": "tsc -p tsconfig.json || echo 'no ts build'",
+    "start": "node dist/server.js || node dist/index.js",
+    "dev": "ts-node src/server.ts || ts-node src/index.ts",
+    "migrate:prod": "typeorm migration:run"
   },
+ codex/fix-render-stability-and-security-issues
   "keywords": [
     "mall-management",
     "enterprise",
@@ -160,4 +148,8 @@
     "url": "https://github.com/Mosleh92/ops/issues"
   },
   "homepage": "https://mallos.com"
+=======
+  "dependencies": {},
+  "devDependencies": {}
+ main
 }

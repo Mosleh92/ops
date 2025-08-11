@@ -463,7 +463,7 @@ export class InitialData1700000000001 {
         tenantId: (await tenantRepository.findOne({ where: { tenantCode: 'TNT-002' } }))!.id,
         mallId: mall.id,
         type: WorkPermitType.HOT_WORK,
-        status: WorkPermitStatus.PENDING_APPROVAL,
+        status: WorkPermitStatus.PENDING,
         riskLevel: RiskLevel.HIGH,
         category: WorkCategory.ELECTRICAL,
         workDescription: 'Electrical system upgrade and maintenance',

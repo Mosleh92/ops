@@ -4,7 +4,7 @@ const UAE_VAT_RATE = 0.05;
 
 export class VATService {
   // In production, check tenant exemption from DB
-  static async isTenantExempt(tenantId?: string): Promise<boolean> {
+  static async isTenantExempt(_tenantId?: string): Promise<boolean> {
     // TODO: Replace with real DB check
     return false;
   }

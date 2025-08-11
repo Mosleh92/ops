@@ -1,9 +1,8 @@
 import { Repository } from 'typeorm'
 import { database } from '@/config/database'
-import { WorkPermit, WorkPermitStatus, WorkPermitType, RiskLevel } from '@/models/WorkPermit'
+import { WorkPermit, WorkPermitStatus } from '@/models/WorkPermit'
 import { Tenant } from '@/models/Tenant'
 import { Mall } from '@/models/Mall'
-import { User } from '@/models/User'
 import { ApiError } from '@/utils/ApiError'
 import { logger } from '@/utils/logger'
 
@@ -11,13 +10,11 @@ export class WorkPermitService {
   private workPermitRepository: Repository<WorkPermit>
   private tenantRepository: Repository<Tenant>
   private mallRepository: Repository<Mall>
-  private userRepository: Repository<User>
 
   constructor() {
     this.workPermitRepository = database.getRepository(WorkPermit)
     this.tenantRepository = database.getRepository(Tenant)
     this.mallRepository = database.getRepository(Mall)
-    this.userRepository = database.getRepository(User)
   }
 
   async getWorkPermits(options: {
@@ -110,10 +107,10 @@ export class WorkPermitService {
     }
 
     // Create work permit
-    const workPermit = this.workPermitRepository.create({
-      ...data,
-      status: WorkPermitStatus.PENDING_APPROVAL
-    })
+      const workPermit = this.workPermitRepository.create({
+        ...data,
+        status: WorkPermitStatus.PENDING
+      }) as unknown as WorkPermit
 
     const savedWorkPermit = await this.workPermitRepository.save(workPermit)
 
@@ -161,7 +158,7 @@ export class WorkPermitService {
     return updatedWorkPermit
   }
 
-  async approveWorkPermit(id: string, approvedBy: string, comments?: string): Promise<WorkPermit | null> {
+  async approveWorkPermit(id: string, approvedBy: string, comments?: string, department: string = 'operations'): Promise<WorkPermit | null> {
     const workPermit = await this.workPermitRepository.findOne({
       where: { id }
     })
@@ -170,11 +167,11 @@ export class WorkPermitService {
       return null
     }
 
-    if (workPermit.status !== WorkPermitStatus.PENDING_APPROVAL) {
+    if (workPermit.status !== WorkPermitStatus.PENDING) {
       throw new ApiError(400, 'Work permit is not pending approval')
     }
 
-    workPermit.approve(approvedBy, comments)
+    workPermit.approve(approvedBy, department, comments)
     const approvedWorkPermit = await this.workPermitRepository.save(workPermit)
 
     logger.info('Work permit approved', {
@@ -195,7 +192,7 @@ export class WorkPermitService {
       return null
     }
 
-    if (workPermit.status !== WorkPermitStatus.PENDING_APPROVAL) {
+    if (workPermit.status !== WorkPermitStatus.PENDING) {
       throw new ApiError(400, 'Work permit is not pending approval')
     }
 
@@ -224,7 +221,7 @@ export class WorkPermitService {
       throw new ApiError(400, 'Work permit must be approved before activation')
     }
 
-    workPermit.activate(activatedBy)
+    workPermit.startWork(activatedBy)
     const activatedWorkPermit = await this.workPermitRepository.save(workPermit)
 
     logger.info('Work permit activated', {
@@ -244,11 +241,11 @@ export class WorkPermitService {
       return null
     }
 
-    if (workPermit.status !== WorkPermitStatus.ACTIVE) {
+    if (workPermit.status !== WorkPermitStatus.IN_PROGRESS) {
       throw new ApiError(400, 'Work permit must be active to be completed')
     }
 
-    workPermit.complete(completedBy, completionNotes)
+    workPermit.completeWork(completedBy, completionNotes)
     const completedWorkPermit = await this.workPermitRepository.save(workPermit)
 
     logger.info('Work permit completed', {
@@ -273,7 +270,13 @@ export class WorkPermitService {
       throw new ApiError(400, 'Cannot cancel completed work permit')
     }
 
-    workPermit.cancel(cancelledBy, reason)
+    workPermit.status = WorkPermitStatus.CANCELLED
+    workPermit.audit?.approvalHistory.push({
+      action: 'CANCELLED',
+      performedBy: cancelledBy,
+      performedAt: new Date(),
+      comments: reason
+    })
     const cancelledWorkPermit = await this.workPermitRepository.save(workPermit)
 
     logger.info('Work permit cancelled', {
@@ -294,10 +297,12 @@ export class WorkPermitService {
       return null
     }
 
-    workPermit.addInspection({
+    const inspection = {
       ...inspectionData,
       addedBy
-    })
+    }
+    workPermit.inspections = workPermit.inspections || []
+    workPermit.inspections.push(inspection)
 
     const updatedWorkPermit = await this.workPermitRepository.save(workPermit)
 
@@ -319,10 +324,12 @@ export class WorkPermitService {
       return null
     }
 
-    workPermit.addIncident({
+    const incident = {
       ...incidentData,
       addedBy
-    })
+    }
+    workPermit.incidents = workPermit.incidents || []
+    workPermit.incidents.push(incident)
 
     const updatedWorkPermit = await this.workPermitRepository.save(workPermit)
 
@@ -346,9 +353,9 @@ export class WorkPermitService {
       cancelled
     ] = await Promise.all([
       this.workPermitRepository.count(),
-      this.workPermitRepository.count({ where: { status: WorkPermitStatus.PENDING_APPROVAL } }),
+      this.workPermitRepository.count({ where: { status: WorkPermitStatus.PENDING } }),
       this.workPermitRepository.count({ where: { status: WorkPermitStatus.APPROVED } }),
-      this.workPermitRepository.count({ where: { status: WorkPermitStatus.ACTIVE } }),
+      this.workPermitRepository.count({ where: { status: WorkPermitStatus.IN_PROGRESS } }),
       this.workPermitRepository.count({ where: { status: WorkPermitStatus.COMPLETED } }),
       this.workPermitRepository.count({ where: { status: WorkPermitStatus.REJECTED } }),
       this.workPermitRepository.count({ where: { status: WorkPermitStatus.CANCELLED } })
@@ -428,7 +435,7 @@ export class WorkPermitService {
       .leftJoinAndSelect('workPermit.mall', 'mall')
       .where('workPermit.endDate < :now', { now })
       .andWhere('workPermit.status IN (:...statuses)', {
-        statuses: [WorkPermitStatus.APPROVED, WorkPermitStatus.ACTIVE]
+        statuses: [WorkPermitStatus.APPROVED, WorkPermitStatus.IN_PROGRESS]
       })
       .getMany()
   }
@@ -444,7 +451,7 @@ export class WorkPermitService {
       .where('workPermit.endDate <= :expiryDate', { expiryDate })
       .andWhere('workPermit.endDate > :now', { now })
       .andWhere('workPermit.status IN (:...statuses)', {
-        statuses: [WorkPermitStatus.APPROVED, WorkPermitStatus.ACTIVE]
+        statuses: [WorkPermitStatus.APPROVED, WorkPermitStatus.IN_PROGRESS]
       })
       .getMany()
   }

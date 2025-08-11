@@ -41,14 +41,14 @@ router.get('/overview', authenticate, async (req: Request, res: Response) => {
       userRepo.count({ where: { status: UserStatus.ACTIVE } }),
       tenantRepo.count({ where: { status: TenantStatus.ACTIVE } }),
       mallRepo.count({ where: { status: MallStatus.ACTIVE } }),
-      workPermitRepo.count({ where: { status: WorkPermitStatus.ACTIVE } })
+        workPermitRepo.count({ where: { status: WorkPermitStatus.IN_PROGRESS } })
     ]);
 
     // Get pending counts
     const [pendingUsers, pendingTenants, pendingWorkPermits] = await Promise.all([
       userRepo.count({ where: { status: UserStatus.PENDING_VERIFICATION } }),
       tenantRepo.count({ where: { status: TenantStatus.PENDING_APPROVAL } }),
-      workPermitRepo.count({ where: { status: WorkPermitStatus.PENDING_APPROVAL } })
+        workPermitRepo.count({ where: { status: WorkPermitStatus.PENDING } })
     ]);
 
     // Get recent activities
@@ -339,8 +339,8 @@ router.get('/ops-stats/:mallId/:timeRange', authenticate, authorize([UserRole.MA
     const [totalTenants, activeTenants, pendingWorkPermits, activeWorkPermits] = await Promise.all([
       tenantRepo.count({ where: { mallId } }),
       tenantRepo.count({ where: { mallId, status: TenantStatus.ACTIVE } }),
-      workPermitRepo.count({ where: { mallId, status: WorkPermitStatus.PENDING_APPROVAL } }),
-      workPermitRepo.count({ where: { mallId, status: WorkPermitStatus.ACTIVE } })
+      workPermitRepo.count({ where: { mallId, status: WorkPermitStatus.PENDING } }),
+      workPermitRepo.count({ where: { mallId, status: WorkPermitStatus.IN_PROGRESS } })
     ]);
 
     // Mock additional OPS metrics

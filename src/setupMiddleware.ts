@@ -6,7 +6,7 @@ import { IntegrationConfig } from '@/models/IntegrationConfig';
 import compression from 'compression';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import express from 'express';
+import express, { type Request, type Response } from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import os from 'os';
@@ -69,17 +69,17 @@ export function setupMiddleware(app: express.Application): void {
   app.use(auditLog);
 
   // Health and metrics endpoints
-  app.get('/healthz', (_req, res) => {
-    res.status(200).json({ status: 'ok' });
-  });
+    app.get('/healthz', (_req: Request, res: Response) => {
+      res.status(200).json({ status: 'ok' });
+    });
 
-  app.get('/health', async (req, res) => {
-    res.json({
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-      version: config.app.version,
-      environment: config.app.environment,
-      nodeEnv: process.env.NODE_ENV,
+    app.get('/health', async (_req: Request, res: Response) => {
+      res.json({
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        version: config.app.version,
+        environment: config.app.environment,
+        nodeEnv: process.env['NODE_ENV'],
       uptime: process.uptime(),
       memory: process.memoryUsage(),
       memoryPercent: (process.memoryUsage().heapUsed / process.memoryUsage().heapTotal) * 100,
@@ -93,10 +93,10 @@ export function setupMiddleware(app: express.Application): void {
     });
   });
 
-  app.get('/health/database', async (req, res) => {
-    try {
-      const status = databaseManager.getStatus();
-      const pool = databaseManager.getPoolStatus ? databaseManager.getPoolStatus() : {};
+    app.get('/health/database', async (_req: Request, res: Response) => {
+      try {
+        const status = databaseManager.getStatus();
+        const pool = databaseManager.getStatus();
       const repo = getRepository(AuditLog);
       const count = await repo.count();
       res.json({
@@ -110,7 +110,7 @@ export function setupMiddleware(app: express.Application): void {
     }
   });
 
-  app.get('/health/integrations', async (req, res) => {
+    app.get('/health/integrations', async (_req: Request, res: Response) => {
     try {
       const repo = getRepository(IntegrationConfig);
       const integrations = await repo.find();
@@ -128,7 +128,7 @@ export function setupMiddleware(app: express.Application): void {
     }
   });
 
-  app.get('/health/security', (req, res) => {
+    app.get('/health/security', (_req: Request, res: Response) => {
     res.json({
       helmet: true,
       cors: true,
@@ -139,7 +139,7 @@ export function setupMiddleware(app: express.Application): void {
     });
   });
 
-  app.get('/health/audit', async (req, res) => {
+    app.get('/health/audit', async (_req: Request, res: Response) => {
     try {
       const repo = getRepository(AuditLog);
       const count = await repo.count();
@@ -147,7 +147,7 @@ export function setupMiddleware(app: express.Application): void {
       res.json({
         logVolume: count,
         recentLogs: recent,
-        retentionPolicy: process.env.AUDIT_RETENTION_DAYS || 90,
+          retentionPolicy: process.env['AUDIT_RETENTION_DAYS'] || 90,
         cleanupStatus: 'ok',
       });
     } catch (err: any) {
@@ -157,7 +157,7 @@ export function setupMiddleware(app: express.Application): void {
 
   const collectDefaultMetrics = promClient.collectDefaultMetrics;
   collectDefaultMetrics();
-  app.get('/metrics', async (req, res) => {
+    app.get('/metrics', async (_req: Request, res: Response) => {
     res.set('Content-Type', promClient.register.contentType);
     res.end(await promClient.register.metrics());
   });

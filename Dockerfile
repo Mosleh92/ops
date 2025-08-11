@@ -1,6 +1,6 @@
 # ---- Build stage ----
 FROM node:20-bullseye-slim AS build
-ENV NODE_ENV=production \
+ENV NODE_ENV=development \
     npm_config_build_from_source=false \
     PUPPETEER_SKIP_DOWNLOAD=true
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --omit=dev
+RUN npm ci
 COPY . .
 RUN npm run build
 
@@ -26,12 +26,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
 COPY --from=build /usr/bin/dumb-init /usr/bin/dumb-init
-COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
-COPY --from=build /app/package*.json ./
 
 ENV PORT=8080
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://127.0.0.1:${PORT}/healthz || exit 1
-CMD ["dumb-init","npm","start"]
+CMD ["dumb-init","node","dist/index.js"]

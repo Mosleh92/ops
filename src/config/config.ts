@@ -156,6 +156,7 @@ export interface Config {
     environment: string;
     port: number;
     apiVersion: string;
+    corsOrigin: string | string[];
   };
 
   // Database
@@ -379,6 +380,7 @@ export const config: Config = {
     environment: process.env.NODE_ENV || 'development',
     port: parseInt(process.env.PORT || '3001', 10),
     apiVersion: process.env.API_VERSION || 'v1',
+    corsOrigin: env.CORS_ORIGIN,
   },
 
   database: {

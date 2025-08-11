@@ -1,6 +1,15 @@
-import crypto from 'crypto';
-import axios, { AxiosRequestConfig } from 'axios';
-import { IntegrationConfig, IntegrationLog } from '../../models/IntegrationConfig';
+import axios from 'axios';
+import * as crypto from 'crypto';
+import type { IntegrationConfig as IntegrationConfigModel } from '../../models/IntegrationConfig';
+
+export type IntegrationConfig = IntegrationConfigModel;
+
+export interface IntegrationLog {
+  timestamp: Date;
+  level: 'info' | 'warn' | 'error';
+  message: string;
+  details?: any;
+}
 
 export abstract class IntegrationService {
   protected config: IntegrationConfig;
@@ -12,40 +21,41 @@ export abstract class IntegrationService {
   }
 
   // --- OAUTH2 AUTHENTICATION ---
-  async authenticateOAuth2(grantType: 'client_credentials' | 'authorization_code', options: {
-    tokenUrl: string;
-    clientId: string;
-    clientSecret: string;
-    scope?: string;
-    code?: string;
-    redirectUri?: string;
-    refreshToken?: string;
-  }): Promise<{ accessToken: string; refreshToken?: string; expiresIn?: number }> {
+    async authenticateOAuth2(grantType: 'client_credentials' | 'authorization_code' | 'refresh_token', options: {
+      tokenUrl: string;
+      clientId: string;
+      clientSecret: string;
+      scope?: string;
+      code?: string;
+      redirectUri?: string;
+      refreshToken?: string;
+    }): Promise<{ accessToken: string; refreshToken?: string; expiresIn?: number }> {
     try {
       let data: any;
-      if (grantType === 'client_credentials') {
-        data = {
-          grant_type: 'client_credentials',
-          client_id: options.clientId,
-          client_secret: options.clientSecret,
-          scope: options.scope,
-        };
-      } else if (grantType === 'authorization_code') {
-        data = {
-          grant_type: 'authorization_code',
-          code: options.code,
-          redirect_uri: options.redirectUri,
-          client_id: options.clientId,
-          client_secret: options.clientSecret,
-        };
-      } else if (grantType === 'refresh_token') {
-        data = {
-          grant_type: 'refresh_token',
-          refresh_token: options.refreshToken,
-          client_id: options.clientId,
-          client_secret: options.clientSecret,
-        };
-      }
+        if (grantType === 'client_credentials') {
+          data = {
+            grant_type: 'client_credentials',
+            client_id: options.clientId,
+            client_secret: options.clientSecret,
+            ...(options.scope ? { scope: options.scope } : {}),
+          };
+        } else if (grantType === 'authorization_code') {
+          data = {
+            grant_type: 'authorization_code',
+            code: options.code ?? '',
+            redirect_uri: options.redirectUri ?? '',
+            client_id: options.clientId,
+            client_secret: options.clientSecret,
+            ...(options.scope ? { scope: options.scope } : {}),
+          };
+        } else if (grantType === 'refresh_token') {
+          data = {
+            grant_type: 'refresh_token',
+            refresh_token: options.refreshToken ?? '',
+            client_id: options.clientId,
+            client_secret: options.clientSecret,
+          };
+        }
       const response = await axios.post(options.tokenUrl, new URLSearchParams(data), {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });
@@ -66,13 +76,13 @@ export abstract class IntegrationService {
       const creds = this.getCredentials();
       if (!this.config.refreshToken) throw new Error('No refresh token available');
       const tokenData = await this.authenticateOAuth2('refresh_token', {
-        tokenUrl: creds.tokenUrl,
-        clientId: creds.clientId,
-        clientSecret: creds.clientSecret,
-        refreshToken: this.config.refreshToken,
+        tokenUrl: creds['tokenUrl'],
+        clientId: creds['clientId'],
+        clientSecret: creds['clientSecret'],
+        refreshToken: this.config.refreshToken!,
       });
       this.config.accessToken = tokenData.accessToken;
-      this.config.refreshToken = tokenData.refreshToken;
+        this.config.refreshToken = tokenData.refreshToken ?? this.config.refreshToken;
       this.config.tokenExpiry = new Date(Date.now() + (tokenData.expiresIn || 3600) * 1000);
       // TODO: Persist updated tokens to DB
       this.log('info', 'Refreshed OAuth2 token');
@@ -81,13 +91,13 @@ export abstract class IntegrationService {
 
   // --- CREDENTIAL ENCRYPTION ---
   protected encryptCredential(value: string): string {
-    const cipher = crypto.createCipher('aes-256-ctr', process.env.INTEGRATION_SECRET_KEY || 'integration-secret-key');
+      const cipher = crypto.createCipher('aes-256-ctr', process.env['INTEGRATION_SECRET_KEY'] || 'integration-secret-key');
     let crypted = cipher.update(value, 'utf8', 'hex');
     crypted += cipher.final('hex');
     return crypted;
   }
   protected decryptCredential(value: string): string {
-    const decipher = crypto.createDecipher('aes-256-ctr', process.env.INTEGRATION_SECRET_KEY || 'integration-secret-key');
+      const decipher = crypto.createDecipher('aes-256-ctr', process.env['INTEGRATION_SECRET_KEY'] || 'integration-secret-key');
     let dec = decipher.update(value, 'hex', 'utf8');
     dec += decipher.final('utf8');
     return dec;
@@ -107,7 +117,7 @@ export abstract class IntegrationService {
   }
   getApiKey(): string | undefined {
     const creds = this.getCredentials();
-    return creds.apiKey ? this.decryptCredential(creds.apiKey) : undefined;
+    return creds['apiKey'] ? this.decryptCredential(creds['apiKey']) : undefined;
   }
   rotateApiKey(newKey: string) {
     this.setApiKey(newKey);

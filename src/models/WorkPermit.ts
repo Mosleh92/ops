@@ -211,6 +211,14 @@ export class WorkPermit {
     status?: 'pending' | 'in_progress' | 'completed' | 'failed';
   }[] = [];
 
+  // Incident records
+  @Column({ type: 'jsonb', nullable: true })
+  incidents: any[] = [];
+
+  // Inspection records
+  @Column({ type: 'jsonb', nullable: true })
+  inspections: any[] = [];
+
   // Compliance Information
   @Column({ type: 'jsonb', nullable: true })
   compliance: {

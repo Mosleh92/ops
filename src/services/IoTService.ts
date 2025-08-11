@@ -12,6 +12,7 @@ import { database } from '@/config/database';
 import { IoTDevice, DeviceType, DeviceStatus } from '@/models/IoTDevice';
 import { SensorData, SensorType, DataQuality } from '@/models/SensorData';
 import { redis } from '@/config/redis';
+import { MoreThanOrEqual } from 'typeorm';
 
 export interface DeviceRegistration {
   deviceId: string;
@@ -110,11 +111,11 @@ export class IoTService extends EventEmitter {
         this.subscribeToTopics();
       });
 
-      this.mqttClient.on('message', (topic, message) => {
+      this.mqttClient.on('message', (topic: string, message: Buffer) => {
         this.handleMQTTMessage(topic, message);
       });
 
-      this.mqttClient.on('error', (error) => {
+      this.mqttClient.on('error', (error: Error) => {
         logger.error('❌ MQTT connection error:', error);
       });
 
@@ -141,7 +142,7 @@ export class IoTService extends EventEmitter {
     ];
 
     topics.forEach(topic => {
-      this.mqttClient!.subscribe(topic, (err) => {
+      this.mqttClient!.subscribe(topic, (err: Error | undefined) => {
         if (err) {
           logger.error(`❌ Failed to subscribe to ${topic}:`, err);
         } else {
@@ -159,11 +160,11 @@ export class IoTService extends EventEmitter {
       const payload = JSON.parse(message.toString());
       const topicParts = topic.split('/');
       
-      if (topicParts.length < 4) return;
+      if (topicParts.length < 5) return;
 
-      const mallId = topicParts[1];
-      const deviceId = topicParts[3];
-      const messageType = topicParts[4];
+      const mallId = topicParts[1]!;
+      const deviceId = topicParts[3]!;
+      const messageType = topicParts[4]!;
 
       switch (messageType) {
         case 'data':
@@ -584,15 +585,13 @@ export class IoTService extends EventEmitter {
         .getRepository(SensorData)
         .count();
 
-      const todayReadings = await database
-        .getRepository(SensorData)
-        .count({
-          where: {
-            timestamp: {
-              $gte: new Date(new Date().setHours(0, 0, 0, 0))
+        const todayReadings = await database
+          .getRepository(SensorData)
+          .count({
+            where: {
+              timestamp: MoreThanOrEqual(new Date(new Date().setHours(0, 0, 0, 0)))
             }
-          }
-        });
+          });
 
       return {
         totalDevices,

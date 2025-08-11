@@ -27,12 +27,13 @@ export enum WorkPermitType {
 }
 
 export enum WorkPermitStatus {
-  PENDING = 'pending',
-  APPROVED = 'approved',
-  REJECTED = 'rejected',
-  IN_PROGRESS = 'in_progress',
-  COMPLETED = 'completed',
-  CANCELLED = 'cancelled'
+  PENDING_APPROVAL = 'PENDING_APPROVAL',
+  APPROVED = 'APPROVED',
+  ACTIVE = 'ACTIVE',
+  IN_PROGRESS = 'IN_PROGRESS',
+  COMPLETED = 'COMPLETED',
+  REJECTED = 'REJECTED',
+  CANCELLED = 'CANCELLED'
 }
 
 export enum ApplicantType {
@@ -81,10 +82,10 @@ export class WorkPermit {
   @Column({
     type: 'enum',
     enum: WorkPermitStatus,
-    default: WorkPermitStatus.PENDING
+    default: WorkPermitStatus.PENDING_APPROVAL
   })
   @IsEnum(WorkPermitStatus)
-  status: WorkPermitStatus = WorkPermitStatus.PENDING;
+  status: WorkPermitStatus = WorkPermitStatus.PENDING_APPROVAL;
 
   @Column({
     type: 'enum',
@@ -303,6 +304,20 @@ export class WorkPermit {
     }[];
   };
 
+  @Column({ type: 'jsonb', nullable: true })
+  inspections: any[] = [];
+
+  addInspection(inspection: any): void {
+    this.inspections.push(inspection);
+  }
+
+  @Column({ type: 'jsonb', nullable: true })
+  incidents: any[] = [];
+
+  addIncident(incident: any): void {
+    this.incidents.push(incident);
+  }
+
   @CreateDateColumn()
   createdAt!: Date;
 
@@ -318,7 +333,7 @@ export class WorkPermit {
   }
 
   get isPending(): boolean {
-    return this.status === WorkPermitStatus.PENDING;
+    return this.status === WorkPermitStatus.PENDING_APPROVAL;
   }
 
   get isRejected(): boolean {
@@ -421,6 +436,35 @@ export class WorkPermit {
       performedBy: completedBy,
       performedAt: new Date(),
       comments: notes
+    });
+  }
+
+  activate(activatedBy: string): void {
+    this.status = WorkPermitStatus.ACTIVE;
+    if (!this.audit) {
+      this.audit = { createdBy: '', approvalHistory: [] };
+    }
+    this.audit.approvalHistory.push({
+      action: 'ACTIVATED',
+      performedBy: activatedBy,
+      performedAt: new Date()
+    });
+  }
+
+  complete(completedBy: string, notes?: string): void {
+    this.completeWork(completedBy, notes);
+  }
+
+  cancel(cancelledBy: string, reason: string): void {
+    this.status = WorkPermitStatus.CANCELLED;
+    if (!this.audit) {
+      this.audit = { createdBy: '', approvalHistory: [] };
+    }
+    this.audit.approvalHistory.push({
+      action: 'CANCELLED',
+      performedBy: cancelledBy,
+      performedAt: new Date(),
+      comments: reason
     });
   }
 

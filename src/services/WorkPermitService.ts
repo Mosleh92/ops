@@ -1,9 +1,8 @@
 import { Repository } from 'typeorm'
 import { database } from '@/config/database'
-import { WorkPermit, WorkPermitStatus, WorkPermitType, RiskLevel } from '@/models/WorkPermit'
+import { WorkPermit, WorkPermitStatus } from '@/models/WorkPermit'
 import { Tenant } from '@/models/Tenant'
 import { Mall } from '@/models/Mall'
-import { User } from '@/models/User'
 import { ApiError } from '@/utils/ApiError'
 import { logger } from '@/utils/logger'
 
@@ -11,13 +10,11 @@ export class WorkPermitService {
   private workPermitRepository: Repository<WorkPermit>
   private tenantRepository: Repository<Tenant>
   private mallRepository: Repository<Mall>
-  private userRepository: Repository<User>
 
   constructor() {
     this.workPermitRepository = database.getRepository(WorkPermit)
     this.tenantRepository = database.getRepository(Tenant)
     this.mallRepository = database.getRepository(Mall)
-    this.userRepository = database.getRepository(User)
   }
 
   async getWorkPermits(options: {
@@ -115,7 +112,7 @@ export class WorkPermitService {
       status: WorkPermitStatus.PENDING_APPROVAL
     })
 
-    const savedWorkPermit = await this.workPermitRepository.save(workPermit)
+    const savedWorkPermit = await this.workPermitRepository.save(workPermit as any)
 
     logger.info('Work permit created', {
       workPermitId: savedWorkPermit.id,

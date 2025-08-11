@@ -12,6 +12,7 @@ import { database } from '@/config/database';
 import { IoTDevice, DeviceType, DeviceStatus } from '@/models/IoTDevice';
 import { SensorData, SensorType, DataQuality } from '@/models/SensorData';
 import { redis } from '@/config/redis';
+import { MoreThanOrEqual } from 'typeorm';
 
 export interface DeviceRegistration {
   deviceId: string;
@@ -161,9 +162,9 @@ export class IoTService extends EventEmitter {
       
       if (topicParts.length < 4) return;
 
-      const mallId = topicParts[1];
-      const deviceId = topicParts[3];
-      const messageType = topicParts[4];
+        const mallId = topicParts[1]!;
+        const deviceId = topicParts[3]!;
+        const messageType = topicParts[4]!;
 
       switch (messageType) {
         case 'data':
@@ -584,15 +585,13 @@ export class IoTService extends EventEmitter {
         .getRepository(SensorData)
         .count();
 
-      const todayReadings = await database
-        .getRepository(SensorData)
-        .count({
-          where: {
-            timestamp: {
-              $gte: new Date(new Date().setHours(0, 0, 0, 0))
+        const todayReadings = await database
+          .getRepository(SensorData)
+          .count({
+            where: {
+              timestamp: MoreThanOrEqual(new Date(new Date().setHours(0, 0, 0, 0)))
             }
-          }
-        });
+          });
 
       return {
         totalDevices,

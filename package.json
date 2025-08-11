@@ -1,14 +1,12 @@
 {
   "name": "ops",
   "private": true,
-  "engines": { "node": ">=18 <21" },
   "scripts": {
     "build": "tsc -p tsconfig.json || echo 'no ts build'",
     "start": "node dist/server.js || node dist/index.js",
     "dev": "ts-node src/server.ts || ts-node src/index.ts",
     "migrate:prod": "typeorm migration:run"
   },
- codex/fix-render-stability-and-security-issues
   "keywords": [
     "mall-management",
     "enterprise",
@@ -148,8 +146,4 @@
     "url": "https://github.com/Mosleh92/ops/issues"
   },
   "homepage": "https://mallos.com"
-=======
-  "dependencies": {},
-  "devDependencies": {}
- main
 }

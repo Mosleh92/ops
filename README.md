@@ -86,8 +86,8 @@ frontend/src/
 
 1. **استنساخ المشروع**
 ```bash
-git clone https://github.com/mallos-enterprise/mallos-platform.git
-cd mallos-platform
+git clone https://github.com/Mosleh92/ops.git
+cd ops
 ```
 
 2. **تثبيت التبعيات**

@@ -24,8 +24,8 @@
 
 ```bash
 # استنساخ المشروع
-git clone https://github.com/mallos-enterprise/mallos-platform.git
-cd mallos-platform
+git clone https://github.com/Mosleh92/ops.git
+cd ops
 
 # تثبيت التبعيات
 npm install
@@ -148,8 +148,8 @@ sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE mallos_production TO 
 
 ```bash
 # استنساخ المشروع
-git clone https://github.com/mallos-enterprise/mallos-platform.git
-cd mallos-platform
+git clone https://github.com/Mosleh92/ops.git
+cd ops
 
 # تثبيت التبعيات
 npm install
@@ -191,7 +191,7 @@ server {
     }
 
     location /static/ {
-        alias /path/to/mallos-platform/frontend/dist/;
+        alias /path/to/ops/frontend/dist/;
         expires 1y;
         add_header Cache-Control "public, immutable";
     }
@@ -527,7 +527,7 @@ pm2 start ecosystem.config.js -i max
 - **البريد الإلكتروني**: support@mallos.com
 - **التوثيق**: https://docs.mallos.com
 - **المساعدة**: https://help.mallos.com
-- **GitHub Issues**: https://github.com/mallos-enterprise/mallos-platform/issues
+- **GitHub Issues**: https://github.com/Mosleh92/ops/issues
 
 ---
 

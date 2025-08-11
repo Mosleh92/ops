@@ -161,6 +161,10 @@ class MallOSApplication {
     this.app.use(auditLog);
 
     // Health and metrics endpoints
+    this.app.get('/healthz', (_req, res) => {
+      res.status(200).json({ status: 'ok' });
+    });
+
     this.app.get('/health', async (req, res) => {
       res.json({
         status: 'healthy',
@@ -463,11 +467,11 @@ class MallOSApplication {
       await this.initialize();
 
       const port = config.app.port;
-      this.server.listen(port, () => {
+      this.server.listen(port, '0.0.0.0', () => {
         logger.info(`🚀 MallOS Enterprise Server running on port ${port}`);
         logger.info(`📊 Environment: ${config.app.environment}`);
         logger.info(`🔗 API Documentation: http://localhost:${port}/api`);
-        logger.info(`🏥 Health Check: http://localhost:${port}/health`);
+        logger.info(`🏥 Health Check: http://localhost:${port}/healthz`);
       });
     } catch (error) {
       logger.error('❌ Failed to start application:', error);

@@ -154,10 +154,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mallos-enterprise/mallos-platform.git"
+    "url": "https://github.com/Mosleh92/ops.git"
   },
   "bugs": {
-    "url": "https://github.com/mallos-enterprise/mallos-platform/issues"
+    "url": "https://github.com/Mosleh92/ops/issues"
   },
   "homepage": "https://mallos.com"
 }

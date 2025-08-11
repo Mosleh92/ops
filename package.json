@@ -1,14 +1,16 @@
 {
   "name": "ops",
   "private": true,
-  "engines": { "node": ">=18 <21" },
+  "engines": {
+    "node": ">=18 <21",
+    "npm": ">=8.0.0"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json || echo 'no ts build'",
     "start": "node dist/server.js || node dist/index.js",
     "dev": "ts-node src/server.ts || ts-node src/index.ts",
     "migrate:prod": "typeorm migration:run"
   },
- codex/fix-render-stability-and-security-issues
   "keywords": [
     "mall-management",
     "enterprise",
@@ -136,10 +138,6 @@
     "knex": "^2.4.2",
     "sqlite3": "^5.1.6"
   },
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=8.0.0"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/Mosleh92/ops.git"
@@ -148,8 +146,4 @@
     "url": "https://github.com/Mosleh92/ops/issues"
   },
   "homepage": "https://mallos.com"
-=======
-  "dependencies": {},
-  "devDependencies": {}
- main
 }

@@ -1,5 +1,5 @@
 // NOTE: Requires axios and @types/axios. Run: npm install axios @types/axios
-import axios from 'axios';
+import _axios from 'axios'
 import { logger } from '../utils/logger';
 
 const CACHE_DURATION_MS = 10 * 60 * 1000; // 10 minutes

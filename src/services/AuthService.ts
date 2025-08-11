@@ -8,7 +8,7 @@ import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { redis } from '@/config/redis';
 import { config } from '@/config/config';
-import { User, UserRole, UserStatus } from '@/models/User';
+import { User, UserRole } from '@/models/User';
 import { database } from '@/config/database';
 import { logger } from '@/utils/logger';
 import crypto from 'crypto';
@@ -24,9 +24,9 @@ export class AuthService {
       tenantId: user.tenantId,
       status: user.status,
     };
-    return jwt.sign(payload, config.auth.jwtSecret, {
+    return jwt.sign(payload, config.auth.jwtSecret as any, {
       expiresIn: config.auth.jwtExpiresIn,
-    });
+    } as any)
   }
 
   /**
@@ -37,9 +37,9 @@ export class AuthService {
       sub: user.id,
       type: 'refresh',
     };
-    return jwt.sign(payload, config.auth.jwtSecret, {
+    return jwt.sign(payload, config.auth.jwtSecret as any, {
       expiresIn: config.auth.jwtRefreshExpiresIn,
-    });
+    } as any)
   }
 
   /**

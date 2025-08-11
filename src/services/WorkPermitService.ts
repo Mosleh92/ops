@@ -171,7 +171,7 @@ export class WorkPermitService {
       throw new ApiError(400, 'Work permit is not pending approval')
     }
 
-    workPermit.approve(approvedBy, comments)
+    workPermit.approve(approvedBy, 'general', comments)
     const approvedWorkPermit = await this.workPermitRepository.save(workPermit)
 
     logger.info('Work permit approved', {

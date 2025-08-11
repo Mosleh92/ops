@@ -32,7 +32,9 @@ export enum UserRole {
   AI_SPECIALIST = 'ai_specialist',
   BLOCKCHAIN_DEVELOPER = 'blockchain_developer',
   TENANT_USER = 'tenant_user',
-  GUEST = 'guest'
+  GUEST = 'guest',
+  ADMIN = 'ADMIN',
+  MALL_MANAGER = 'MALL_MANAGER'
 }
 
 export enum UserStatus {

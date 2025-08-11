@@ -6,10 +6,13 @@ import { NotificationService } from '@/services/NotificationService'
 import { workPermitSchema, updateWorkPermitSchema, approveWorkPermitSchema } from '@/validators/workPermit'
 import { logger } from '@/utils/logger'
 import { ApiError } from '@/utils/ApiError'
+import { UserRole } from '@/models/User'
 
 const router = Router()
 const workPermitService = new WorkPermitService()
 const notificationService = new NotificationService()
+
+type AuthRequest = Request & { user?: any }
 
 /**
  * @swagger
@@ -80,7 +83,7 @@ const notificationService = new NotificationService()
  *                 pagination:
  *                   $ref: '#/components/schemas/Pagination'
  */
-router.get('/', authenticate, async (req: Request, res: Response) => {
+router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const { page = 1, limit = 10, status, type, riskLevel, tenantId, mallId, search } = req.query
     const filters = { status, type, riskLevel, tenantId, mallId, search }
@@ -129,7 +132,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
  *       404:
  *         description: Work permit not found
  */
-router.get('/:id', authenticate, async (req: Request, res: Response) => {
+router.get('/:id', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params
     const workPermit = await workPermitService.getWorkPermitById(id)
@@ -174,7 +177,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
  *       400:
  *         description: Invalid request data
  */
-router.post('/', authenticate, authorize(['TENANT_USER', 'MALL_MANAGER', 'ADMIN']), validate(workPermitSchema), async (req: Request, res: Response) => {
+router.post('/', authenticate, authorize([UserRole.TENANT_USER, UserRole.MALL_MANAGER, UserRole.ADMIN]), validate(workPermitSchema), async (req: AuthRequest, res: Response) => {
   try {
     const workPermitData = req.body
     const workPermit = await workPermitService.createWorkPermit(workPermitData, req.user!.id)
@@ -225,7 +228,7 @@ router.post('/', authenticate, authorize(['TENANT_USER', 'MALL_MANAGER', 'ADMIN'
  *       404:
  *         description: Work permit not found
  */
-router.put('/:id', authenticate, authorize(['TENANT_USER', 'MALL_MANAGER', 'ADMIN']), validate(updateWorkPermitSchema), async (req: Request, res: Response) => {
+router.put('/:id', authenticate, authorize([UserRole.TENANT_USER, UserRole.MALL_MANAGER, UserRole.ADMIN]), validate(updateWorkPermitSchema), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params
     const updateData = req.body
@@ -286,7 +289,7 @@ router.put('/:id', authenticate, authorize(['TENANT_USER', 'MALL_MANAGER', 'ADMI
  *             schema:
  *               $ref: '#/components/schemas/WorkPermit'
  */
-router.post('/:id/approve', authenticate, authorize(['MALL_MANAGER', 'ADMIN']), validate(approveWorkPermitSchema), async (req: Request, res: Response) => {
+router.post('/:id/approve', authenticate, authorize([UserRole.MALL_MANAGER, UserRole.ADMIN]), validate(approveWorkPermitSchema), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params
     const { comments } = req.body
@@ -347,7 +350,7 @@ router.post('/:id/approve', authenticate, authorize(['MALL_MANAGER', 'ADMIN']), 
  *             schema:
  *               $ref: '#/components/schemas/WorkPermit'
  */
-router.post('/:id/reject', authenticate, authorize(['MALL_MANAGER', 'ADMIN']), async (req: Request, res: Response) => {
+router.post('/:id/reject', authenticate, authorize([UserRole.MALL_MANAGER, UserRole.ADMIN]), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params
     const { reason } = req.body
@@ -401,7 +404,7 @@ router.post('/:id/reject', authenticate, authorize(['MALL_MANAGER', 'ADMIN']), a
  *             schema:
  *               $ref: '#/components/schemas/WorkPermit'
  */
-router.post('/:id/activate', authenticate, authorize(['MALL_MANAGER', 'ADMIN']), async (req: Request, res: Response) => {
+router.post('/:id/activate', authenticate, authorize([UserRole.MALL_MANAGER, UserRole.ADMIN]), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params
     
@@ -458,7 +461,7 @@ router.post('/:id/activate', authenticate, authorize(['MALL_MANAGER', 'ADMIN']),
  *             schema:
  *               $ref: '#/components/schemas/WorkPermit'
  */
-router.post('/:id/complete', authenticate, authorize(['TENANT_USER', 'MALL_MANAGER', 'ADMIN']), async (req: Request, res: Response) => {
+router.post('/:id/complete', authenticate, authorize([UserRole.TENANT_USER, UserRole.MALL_MANAGER, UserRole.ADMIN]), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params
     const { completionNotes } = req.body
@@ -519,7 +522,7 @@ router.post('/:id/complete', authenticate, authorize(['TENANT_USER', 'MALL_MANAG
  *             schema:
  *               $ref: '#/components/schemas/WorkPermit'
  */
-router.post('/:id/cancel', authenticate, authorize(['TENANT_USER', 'MALL_MANAGER', 'ADMIN']), async (req: Request, res: Response) => {
+router.post('/:id/cancel', authenticate, authorize([UserRole.TENANT_USER, UserRole.MALL_MANAGER, UserRole.ADMIN]), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params
     const { reason } = req.body
@@ -599,7 +602,7 @@ router.post('/:id/cancel', authenticate, authorize(['TENANT_USER', 'MALL_MANAGER
  *             schema:
  *               $ref: '#/components/schemas/WorkPermit'
  */
-router.post('/:id/inspections', authenticate, authorize(['MALL_MANAGER', 'ADMIN']), async (req: Request, res: Response) => {
+router.post('/:id/inspections', authenticate, authorize([UserRole.MALL_MANAGER, UserRole.ADMIN]), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params
     const inspectionData = req.body
@@ -675,7 +678,7 @@ router.post('/:id/inspections', authenticate, authorize(['MALL_MANAGER', 'ADMIN'
  *             schema:
  *               $ref: '#/components/schemas/WorkPermit'
  */
-router.post('/:id/incidents', authenticate, authorize(['TENANT_USER', 'MALL_MANAGER', 'ADMIN']), async (req: Request, res: Response) => {
+router.post('/:id/incidents', authenticate, authorize([UserRole.TENANT_USER, UserRole.MALL_MANAGER, UserRole.ADMIN]), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params
     const incidentData = req.body
@@ -738,7 +741,7 @@ router.post('/:id/incidents', authenticate, authorize(['TENANT_USER', 'MALL_MANA
  *                 byCategory:
  *                   type: object
  */
-router.get('/stats/overview', authenticate, async (req: Request, res: Response) => {
+router.get('/stats/overview', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const stats = await workPermitService.getWorkPermitStats()
 
@@ -774,7 +777,7 @@ router.get('/stats/overview', authenticate, async (req: Request, res: Response) 
  *       404:
  *         description: Work permit not found
  */
-router.delete('/:id', authenticate, authorize(['ADMIN']), async (req: Request, res: Response) => {
+router.delete('/:id', authenticate, authorize([UserRole.ADMIN]), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params
     

@@ -3,16 +3,16 @@
  * Manages 10,000+ IoT devices with MQTT broker integration
  */
 
-import * as mqtt from 'mqtt';
-import { EventEmitter } from 'events';
-import { v4 as uuidv4 } from 'uuid';
-import * as crypto from 'crypto';
-import { logger } from '@/utils/logger';
-import { database } from '@/config/database';
-import { IoTDevice, DeviceType, DeviceStatus } from '@/models/IoTDevice';
-import { SensorData, SensorType, DataQuality } from '@/models/SensorData';
-import { redis } from '@/config/redis';
-import { MoreThanOrEqual } from 'typeorm';
+import mqtt, { MqttClient } from 'mqtt'
+import { EventEmitter } from 'events'
+import { v4 as uuidv4 } from 'uuid'
+import * as crypto from 'crypto'
+import { logger } from '@/utils/logger'
+import { database } from '@/config/database'
+import { IoTDevice, DeviceType, DeviceStatus } from '@/models/IoTDevice'
+import { SensorData, SensorType, DataQuality } from '@/models/SensorData'
+import { redis } from '@/config/redis'
+import { MoreThanOrEqual } from 'typeorm'
 
 export interface DeviceRegistration {
   deviceId: string;
@@ -48,8 +48,7 @@ export interface DeviceCommand {
 
 export class IoTService extends EventEmitter {
   private static instance: IoTService;
-  private mqttClient: mqtt.Client | null = null;
-  private deviceConnections: Map<string, any> = new Map();
+  private mqttClient: MqttClient | null = null
   private deviceCertificates: Map<string, string> = new Map();
   private isInitialized = false;
 
@@ -104,24 +103,24 @@ export class IoTService extends EventEmitter {
         connectTimeout: 30000
       };
 
-      this.mqttClient = mqtt.connect(mqttConfig);
+      this.mqttClient = mqtt.connect(mqttConfig)
 
       this.mqttClient.on('connect', () => {
-        logger.info('✅ Connected to MQTT broker');
-        this.subscribeToTopics();
-      });
+        logger.info('✅ Connected to MQTT broker')
+        this.subscribeToTopics()
+      })
 
-      this.mqttClient.on('message', (topic, message) => {
-        this.handleMQTTMessage(topic, message);
-      });
+      this.mqttClient.on('message', (topic: string, message: Buffer) => {
+        this.handleMQTTMessage(topic, message)
+      })
 
-      this.mqttClient.on('error', (error) => {
-        logger.error('❌ MQTT connection error:', error);
-      });
+      this.mqttClient.on('error', (error: Error) => {
+        logger.error('❌ MQTT connection error:', error)
+      })
 
       this.mqttClient.on('close', () => {
-        logger.warn('⚠️ MQTT connection closed');
-      });
+        logger.warn('⚠️ MQTT connection closed')
+      })
     } catch (error) {
       logger.error('❌ Failed to connect to MQTT broker:', error);
       throw error;
@@ -142,14 +141,14 @@ export class IoTService extends EventEmitter {
     ];
 
     topics.forEach(topic => {
-      this.mqttClient!.subscribe(topic, (err) => {
+      this.mqttClient!.subscribe(topic, (err: Error | null) => {
         if (err) {
-          logger.error(`❌ Failed to subscribe to ${topic}:`, err);
+          logger.error(`❌ Failed to subscribe to ${topic}:`, err)
         } else {
-          logger.info(`✅ Subscribed to ${topic}`);
+          logger.info(`✅ Subscribed to ${topic}`)
         }
-      });
-    });
+      })
+    })
   }
 
   /**

@@ -1,10 +1,13 @@
 {
   "name": "ops",
   "private": true,
+ codex/fix-render-service-health-check-and-lockfile
   "engines": {
     "node": ">=18 <21",
     "npm": ">=8.0.0"
   },
+=======
+ main
   "scripts": {
     "build": "tsc -p tsconfig.json || echo 'no ts build'",
     "start": "node dist/server.js || node dist/index.js",

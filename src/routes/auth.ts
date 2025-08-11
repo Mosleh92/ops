@@ -87,32 +87,16 @@ router.post(
       const accessToken = AuthService.generateAccessToken(user);
       const refreshToken = AuthService.generateRefreshToken(user);
       const sessionId = await AuthService.createSession(user.id, { role: user.role, tenantId: user.tenantId });
-      res.cookie('sessionId', sessionId, { httpOnly: true, secure: true });
+      res.cookie('sessionId', sessionId, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax'
+      });
       return res.json({ accessToken, refreshToken, sessionId });
     } catch (err) {
       logger.error('Login error', err);
       return res.status(500).json({ message: 'Login failed' });
     }
- codex/add-validation-middleware-for-auth-routes
-
-    if (user.status !== UserStatus.ACTIVE) {
-      return res.status(403).json({ message: 'Account not active' });
-    }
-    // MFA step (optional)
-    // ...
-    const accessToken = AuthService.generateAccessToken(user);
-    const refreshToken = AuthService.generateRefreshToken(user);
-    const sessionId = await AuthService.createSession(user.id, { role: user.role, tenantId: user.tenantId });
-    res.cookie('sessionId', sessionId, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'lax'
-    });
-    return res.json({ accessToken, refreshToken, sessionId });
-  } catch (err) {
-    logger.error('Login error', err);
-    return res.status(500).json({ message: 'Login failed' });
- main
   }
 );
 

@@ -87,6 +87,7 @@ router.post(
       const accessToken = AuthService.generateAccessToken(user);
       const refreshToken = AuthService.generateRefreshToken(user);
       const sessionId = await AuthService.createSession(user.id, { role: user.role, tenantId: user.tenantId });
+      user.tenantId });
       res.cookie('sessionId', sessionId, {
         httpOnly: true,
         secure: true,

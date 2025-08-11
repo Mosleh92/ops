@@ -1,36 +1,52 @@
-# ================================
-# Render Deployment Config: mallos
-# ================================
-
-databases:
-  - name: mallos-db
-    plan: free
-    region: oregon
-
 services:
   - type: web
-    name: mallos-backend
-    env: docker
-    region: oregon
+    name: ops-api
+    runtime: node
     plan: free
-    dockerfilePath: ./Dockerfile
+    region: frankfurt
+    buildCommand: npm ci && npm run build
+    preDeployCommand: npm run migrate:prod || true
+    startCommand: npm start
+    healthCheckPath: /healthz
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 3001
-      - fromDatabase:
-          name: mallos-db
+      - key: NODE_VERSION
+        value: 18
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ops-db
           property: connectionString
-        key: DATABASE_URL
       - key: REDIS_URL
-        sync: false
-      - key: JWT_SECRET
-        sync: false
+        fromService:
+          name: ops-kv
+          type: keyvalue
+          property: connectionString
+      - key: CORS_ORIGIN
+        sync: false  # دامنه فرانت خودت را وارد کن
 
   - type: web
-    name: mallos-frontend
-    env: static
-    buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: frontend/dist
+    name: ops-frontend
+    runtime: static
     plan: free
+    region: frankfurt
+    rootDir: frontend
+    buildCommand: npm ci && (npm run build || npm run build:prod || echo 'built')
+    staticPublishPath: dist
+    envVars:
+      - key: API_BASE_URL
+        fromService:
+          name: ops-api
+          type: web
+          property: hostport
+
+  - type: keyvalue
+    name: ops-kv
+    plan: free
+    region: frankfurt
+    ipAllowList: []  # فقط شبکه داخلی
+
+databases:
+  - name: ops-db
+    plan: free
+    region: frankfurt

@@ -51,7 +51,7 @@
     "class-validator": "^0.14.0",
     "class-transformer": "^0.5.1",
     "reflect-metadata": "^0.1.13",
-    "typeorm": "^0.3.17",
+    "typeorm": "^0.3.31",
     "pg": "^8.11.3",
     "redis": "^4.6.8",
     "ioredis": "^5.3.2",
